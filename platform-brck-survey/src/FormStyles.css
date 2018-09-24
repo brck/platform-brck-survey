@@ -1,0 +1,6 @@
+.descriptionInput {
+    overflow: hidden; 
+    overflow-wrap: break-word; 
+    resize: horizontal; 
+    height: 37px;
+}
