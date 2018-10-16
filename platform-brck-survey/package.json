@@ -15,6 +15,5 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "react-scripts": "viankakrisna/react-scripts-eslint-loader-fs-cache"
   }
 }
