@@ -15,9 +15,6 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "eslint": "^5.6.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
     "react-scripts": "viankakrisna/react-scripts-eslint-loader-fs-cache"
   }
 }
