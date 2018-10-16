@@ -1,9 +1,9 @@
 import * as fetch from 'isomorphic-fetch';
 
 // @TODO: actually read these from the env
-const baseUrl = process.env.API_BASEURL || 'http://localhost:8000';
+const baseUrl = process.env.API_BASEURL || 'https://brck-tests.api.ushahidi.io';
 const apiPrefix = process.env.API_PREFIX || '/api/v3';
-const uiClientSecret = process.env.OAUTH_CLIENT_SECRET || '35e7f0bca957836d05ca0492211b0ac707671261';
+const uiClientSecret = process.env.OAUTH_CLIENT_SECRET || '3a845183-62f4-4d92-b1fc-29d81188b5aa';
 
 export const getConfig = () => fetch(`${baseUrl}${apiPrefix}/config`)
   .then((response) => {
