@@ -1,4 +1,3 @@
-![ISOOKO Logo](images/ISOOKO_logo_small.png)
 # ISOOKO Surveys
 The purpose of this repository is to explore solutions for creating a survey function between BRCK devices and Ushahidi deployments for the ISOOKO project. This repo is a dymnamic React form that reads form configurations from platform-api, generates a form in HTML, then allows submission of data to platform-api
 ## References
@@ -11,3 +10,4 @@ This is one of three repositories related to ISOOKO deployment of Ushahidi, [whi
 ## Acknowledgment
 This work has received support from the European Union’s Horizon 2020 research and innovation programme under [grant agreement No 779793](https://cordis.europa.eu/project/rcn/213085_en.html).
 
+![ISOOKO Logo](images/ISOOKO_logo_small.png)
