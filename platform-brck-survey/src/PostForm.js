@@ -4,18 +4,6 @@ import React, { Component } from 'react';
 // Code imports
 import * as api from './helpers/fetchData';
 
-// Control imports
-import TitleInputComponent from './input_components/TitleInputComponent';
-import DescriptionInputComponent from './input_components/DescriptionInputComponent';
-import InputComponent from './input_components/InputComponent';
-import TagsInputComponent from './input_components/TagsInputComponent';
-import CheckboxInputComponent from './input_components/CheckboxInputComponent';
-import DateInputComponent from './input_components/DateInputComponent';
-import DateTimeInputComponent from './input_components/DateTimeInputComponent';
-import SelectInputComponent from './input_components/SelectInputComponent';
-import RadioInputComponent from './input_components/RadioInputComponent';
-import GenericInputComponent from './input_components/GenericInputComponent';
-
 import './App.css';
 import './FormStyles.css'
 
@@ -28,123 +16,379 @@ class PostForm extends Component {
         }
     }
 
+    componentDidMount() {
+      this.prepStates()
+    }
+
+    setDynamicStateKey = async (key, val) => {
+      await this.setState({[key]:val});
+    }
+
+    prepStates = async () => {
+      await api.getAttributes().then(attributes => this.setState({ attributes }));
+
+      let attributes = this.state.attributes.results
+      if (attributes) {
+        // eslint-disable-next-line
+        attributes.map((attribute) => {
+          if (attribute.input === 'checkbox' || attribute.input === 'radio') {
+            // eslint-disable-next-line
+            attribute.options.map((option) => {
+              let checked = false
+              if (attribute.default === option) {
+                checked = true
+              }
+              if (attribute.input === 'select') {
+                this.setDynamicStateKey(attribute.key + "_" + option.replace(/ /gi,"_"), "selected");
+              } else {
+                this.setDynamicStateKey(attribute.key + "_" + option.replace(/ /gi,"_"), checked);
+              }
+            })
+          }
+          if (attribute.default !== null) {
+            this.setDynamicStateKey(attribute.key, attribute.default);
+          } else {
+            this.setDynamicStateKey(attribute.key, "")
+          }
+        });
+      }
+    }
+
+    handleCheckBoxChange = (event) => {
+      let _checkBox = event.target;
+      let _key = _checkBox.attributes.name.value
+      let _ref = _checkBox.attributes.value.value.replace(/ /gi,"_")
+
+      if (_checkBox.checked) {
+        this.setState({[_key + "_" + _ref]: true})
+      } else {
+        this.setState({[_key + "_" + _ref]: false})
+      }
+    }
+
+    handleRadioChange = (event) => {
+      console.log("Radio changed " + Date())
+      let _radio = event.target;
+      let _key = _radio.attributes.name.value
+      let _ref = _radio.attributes.value.value.replace(/ /gi,"_")
+
+      if (_radio.checked) {
+        this.setState({[_key + "_" + _ref]: true})
+      } else {
+        this.setState({[_key + "_" + _ref]: false})
+      }
+    }
+
+    handleSelectChange = (event) => {
+      let _select = event.target;
+      let _key = _select.attributes.name.value;
+      this.setState({[_key]: _select.options[_select.options.selectedIndex].value})
+    }
+
+    handleInputChange = (event) => {
+      let _element = event.target;
+      let _key = _element.attributes.name.value
+      this.setState({[_key]: _element.value})
+    }
+
     /**
      * Form submit handling
      */
     handleSubmit = (event) => {
-        event.preventDefault();
-        console.log('Doing submit:', event);
+      event.preventDefault();
 
-        //TODO: this is sample payload data -- we still need to copy form state to the appropirate places
-        const payloadData = { "title": "this was sent from react, but it has a 402", "content": "fdsa", "locale": "en_US", "values": { "2037b58d-0d83-456b-80ab-6a905b34f172": ["dfdas"], "1b6e7b7f-7ee3-4f24-b83b-1d9c9e47733a": ["afds"], "9ca15c6f-0ec9-4c95-8936-edbc94274941": ["fdsa"], "ad2e7d2c-102e-4564-9e71-6405cb509c11": ["Checkbox option 1"] }, "completed_stages": [], "published_to": [], "post_date": "2018-09-20T22:14:16.698Z", "form": { "id": 2, "url": "http://localhost:8000/api/v3/forms/2", "parent_id": null, "name": "More complicated Test Survey", "description": null, "color": null, "type": "report", "disabled": false, "created": "2018-09-18T20:27:34+00:00", "updated": null, "hide_author": false, "hide_time": false, "hide_location": false, "require_approval": true, "everyone_can_create": true, "targeted_survey": false, "can_create": [], "tags": [], "allowed_privileges": ["read", "create", "update", "delete", "search"] }, "allowed_privileges": ["read", "create", "update", "delete", "search", "change_status", "read_full"] };
+      let payloadData = []
 
-        if (!this.state.accessToken) {
-            console.log('there is no token.');
-            api.getToken().then((response) => {
-                console.log('oauth response: ', response);
-                console.log('oauth token: ', response.access_token);
-                this.setState({ accessToken: response.access_token });
-            })
-                .then(() => api.sendFormData(payloadData, this.state.accessToken).then(response => {
-                    console.log('post form response: ', response);
-                    if (response.ok) {
-                        this.setState({ submitted: true });
-                    }
-                }));
-        } else {
-            api.sendFormData(payloadData, this.state.accessToken).then(response => {
-                console.log('post form response already having token: ', response);
-                if (response.ok) {
-                    this.setState({ submitted: true });
-                }
-            });
+      const formElements = this.props.attributes.results
+      if (formElements !== undefined) {
+        for (var i=0; i<formElements.length; i++) {
+          payloadData[formElements[i].key] = this.state[formElements[i].key]
         }
+      }
 
+      console.log(payloadData)
     }
 
     /**
      * Form rendition engine
      */
+
     render() {
-        if (this.state.submitted) {
-            return (<div>Submitted!</div>)
-        }
+      if (this.state.submitted) {
+        return (<div>Submitted!</div>)
+      }
 
-        let stageSet = 'Loading...';
-        
-        if (this.props.stages) {
-            stageSet = this.props.stages.results.map(function (aStage) {
-                return <div key={aStage.name}>{aStage.label}</div>;
-            })
-        }
+      let stageSet = 'Loading...';
 
-        let attributeSet = '';
-        
-        if (this.props.attributes.results) {
-            console.log('here are all the props:', this.props);
-            attributeSet = this.props.attributes.results.map(function (attribute) {
-                //lots of conditional stuff here...
-                //@TODO: refactor this into its own module
-                if (attribute.type === 'title' && attribute.input === 'text') {
-                    // Render title
-                    return <TitleInputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'description' && attribute.input === 'text') {
-                    // Render a description field
-                    return <DescriptionInputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'decimal' && attribute.input === 'number') {
-                    // Render Decimal field               
-                    return <InputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'int' && attribute.input === 'number') {
-                    // Render Decimal field               
-                    return <InputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'tags' && attribute.input === 'tags') {
-                    // Render Tags input
-                    return <TagsInputComponent attribute={attribute} />
-                }
-                else if (attribute.type === 'varchar' && attribute.input === 'checkbox') {
-                    // Render Checkboxes field            
-                    return <CheckboxInputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'datetime' && attribute.input === 'date') {
-                    // Render Date field                
-                    return <DateInputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'datetime' && attribute.input === 'datetime') {
-                    // Render Datetime field                
-                    return <DateTimeInputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'varchar' && attribute.input === 'select') {
-                    // Render Select field                
-                    return <SelectInputComponent attribute={attribute} />;
-                }
-                else if (attribute.type === 'varchar' && attribute.input === 'radio') {
-                    // Render Radio field                
-                    return <RadioInputComponent attribute={attribute} />;
-                }
-                else {
-                    // Render the generic fields
-                    return <GenericInputComponent attribute={attribute} />;
-                }
-            })
-        }
-        console.log('this props: ', this.props);
+      if (this.props.stages) {
+        stageSet = this.props.stages.results.map(function (aStage, i) {
+          return <div key={i} className="medium-12 columns">
+            <h2>{aStage.label}</h2>
+            <hr/>
+            <h4>{aStage.description}</h4>
+          </div>;
+        })
+      }
 
-        /**
-         * Form container rendition
-         */
-        return (
-            <div className="form">
-                <form name="postForm" onSubmit={this.handleSubmit} noValidate="">
-                    {stageSet}
-                    {attributeSet}
-                    <button>Submit</button>
-                </form>
-            </div>
-        );
+      let attributeSet = '';
+      if (this.props.attributes.results) {
+        // eslint-disable-next-line
+        attributeSet = this.props.attributes.results.map((attribute, j) => {
+          if (this.state[attribute.key] !== undefined) {
+            //lots of conditional stuff here...
+            //@TODO: refactor this into its own module
+            if (attribute.type === 'title' && attribute.input === 'text') {
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+              // Render title
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <input
+                    id={attribute.key}
+                    name={attribute.key}
+                    type="text"
+                    min="2"
+                    max="150"
+                    required={_required}>
+                  </input>
+                </div>
+              );
+            }
+            else if (attribute.type === 'description' && attribute.input === 'text') {
+              // Render a description field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <textarea
+                    id={attribute.key}
+                    className='descriptionInput'
+                    name={attribute.key}
+                    data-min-rows="1"
+                    rows="1"
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} >
+                  </textarea>
+                </div>
+              );
+            }
+            else if (attribute.type === 'decimal' && attribute.input === 'number') {
+              // Render Decimal field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor='{attribute.key}'>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <input
+                    id={attribute.key}
+                    name={attribute.key}
+                    type={attribute.input}
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} />
+                </div>
+              );
+            }
+            else if (attribute.type === 'int' && attribute.input === 'number') {
+              // Render Decimal field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <input
+                    id={attribute.key}
+                    name={attribute.key}
+                    type={attribute.input}
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} />
+                </div>
+              );
+            }
+            else if (attribute.type === 'tags' && attribute.input === 'tags') {
+              // Render Tags input
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <input
+                    id={attribute.key}
+                    name={attribute.key}
+                    type={attribute.input}
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} />
+                </div>
+              );
+            }
+            else if (attribute.type === 'point' && attribute.input === 'location') {
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <div id={attribute.label} className="map"></div>
+                </div>
+              );
+            }
+            else if (attribute.type === 'datetime' && attribute.input === 'date') {
+              // Render Date field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <input
+                    id={attribute.key}
+                    name={attribute.key}
+                    type={attribute.input}
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} />
+                </div>
+              );
+            }
+            else if (attribute.type === 'datetime' && attribute.input === 'datetime') {
+              // Render Datetime field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <input
+                    id={attribute.key}
+                    name={attribute.key}
+                    type={attribute.input}
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} />
+                </div>
+              );
+            }
+            else if (attribute.type === 'varchar' && attribute.input === 'select') {
+              // Render Select field
+              let options = []
+              for (var jk=0; jk<attribute.options.length; jk++) {
+
+                let _options = <option
+                  key={jk}
+                  value={attribute.options[jk]}>
+                    {attribute.options[jk]}
+                </option>
+                options[jk] =  _options
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key} >{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  <select id={attribute.key} name={attribute.key} value={this.state[attribute.key]} onChange={(e) => this.handleSelectChange(e)}>
+                    {options}
+                  </select>
+                </div>
+              );
+            }
+            else if (attribute.type === 'varchar' && attribute.input === 'checkbox') {
+              // Render Checkboxes field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+
+              let elements = []
+              for (var i=0; i<attribute.options.length; i++) {
+                let _elements = <span key={i}>
+                  <input
+                    id={attribute.key + "_" + attribute.options[i].replace(/ /gi,"_")}
+                    name={attribute.key}
+                    type={attribute.input}
+                    value={attribute.options[i]}
+                    checked={this.state[attribute.key + "_" + attribute.options[i].replace(/ /gi,"_")]}
+                    required={_required}
+                    onChange={(e)=>this.handleCheckBoxChange(e)}  />
+                  <label htmlFor={attribute.key + "_" + attribute.options[i].replace(/ /gi,"_")}>{attribute.options[i]}</label>
+                </span>
+                elements[i] =  _elements
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  {elements}
+                </div>
+              );
+            }
+            else if (attribute.type === 'varchar' && attribute.input === 'radio') {
+              // Render Radio field
+              let elements = []
+              for (var ij=0; ij<attribute.options.length; ij++) {
+
+                let _elements = <span key={ij}>
+                  <input
+                    id={attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")}
+                    name={attribute.key}
+                    type={attribute.input}
+                    value={attribute.options[ij]}
+                    checked={this.state[attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")]}
+                    required="required"
+                    onChange={(e)=>this.handleRadioChange(e)}  />
+                  <label htmlFor={attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")}>{attribute.options[ij]}</label>
+                </span>
+
+                elements[ij] = _elements
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label>{attribute.label}</label>
+                  <em>{attribute.instructions}</em>
+                  {elements}
+                </div>
+              );
+            }
+          }
+        })
+
+      }
+
+      /**
+       * Form container rendition
+       */
+      return (
+        <div className="large-12 columns">
+          {stageSet}
+          <form name="postForm" onSubmit={this.handleSubmit} noValidate="">
+            {attributeSet}
+            <button className="button expanded">Submit</button>
+          </form>
+        </div>
+      );
     }
 }
 

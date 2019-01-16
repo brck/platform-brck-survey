@@ -18,7 +18,7 @@ class App extends Component {
    * Init code
    */
   componentDidMount() {
-    //read 
+    //read
     api.getConfig().then(configData => this.setState({ config: configData }));
     api.getFormInfo(2).then(formInfo => this.setState({ formInfo: formInfo }));
     api.getFeatures().then(features => this.setState({ features }));
