@@ -3,7 +3,9 @@ import React, { Component } from 'react';
 
 // Code imports
 import * as api from './helpers/fetchData';
+import DatePicker from 'react-datepicker'
 
+import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import './FormStyles.css'
 
@@ -58,6 +60,7 @@ class PostForm extends Component {
       let _checkBox = event.target;
       let _key = _checkBox.attributes.name.value
       let _ref = _checkBox.attributes.value.value.replace(/ /gi,"_")
+      console.log(_key)
 
       if (_checkBox.checked) {
         this.setState({[_key + "_" + _ref]: true})
@@ -67,11 +70,10 @@ class PostForm extends Component {
     }
 
     handleRadioChange = (event) => {
-      console.log("Radio changed " + Date())
       let _radio = event.target;
       let _key = _radio.attributes.name.value
       let _ref = _radio.attributes.value.value.replace(/ /gi,"_")
-
+      console.log(_key)
       if (_radio.checked) {
         this.setState({[_key + "_" + _ref]: true})
       } else {
@@ -94,19 +96,56 @@ class PostForm extends Component {
     /**
      * Form submit handling
      */
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
       event.preventDefault();
 
-      let payloadData = []
+      let formTitle = ""
+      let formDescription = ""
+      let formId = this.props.stages.results[0].form_id
+
+      let payloadData = {}
 
       const formElements = this.props.attributes.results
+
       if (formElements !== undefined) {
         for (var i=0; i<formElements.length; i++) {
-          payloadData[formElements[i].key] = this.state[formElements[i].key]
+          if (formElements[i].type === 'title' && formElements[i].input === 'text') {
+            formTitle = formElements[i].instructions;
+          }
+          if (formElements[i].type === 'description' && formElements[i].input === 'text') {
+            formDescription = formElements[i].instructions;
+          }
+          if (this.state[formElements[i].key] !== "" && this.state[formElements[i].key] !== undefined) {
+            payloadData[formElements[i].key] = [this.state[formElements[i].key]]
+          }
         }
       }
 
-      console.log(payloadData)
+      let postData = {
+        "title": formTitle,
+        "content":formDescription,
+        "values": payloadData,
+        "form":{
+          "id": formId
+        }
+      }
+
+      if (!this.state.accessToken) {
+        api.getToken().then((response) => {
+          this.setState({ accessToken: response.access_token });
+        })
+        .then(() => api.sendFormData(postData, this.state.accessToken).then(response => {
+          if (response.ok) {
+            this.setState({ submitted: true });
+          }
+        }));
+      } else {
+        api.sendFormData(postData, this.state.accessToken).then(response => {
+          if (response.ok) {
+            this.setState({ submitted: true });
+          }
+        });
+      }
     }
 
     /**
@@ -114,6 +153,7 @@ class PostForm extends Component {
      */
 
     render() {
+
       if (this.state.submitted) {
         return (<div>Submitted!</div>)
       }
@@ -138,46 +178,20 @@ class PostForm extends Component {
             //lots of conditional stuff here...
             //@TODO: refactor this into its own module
             if (attribute.type === 'title' && attribute.input === 'text') {
-              let _required = '';
-              if (attribute.required) {
-                _required = "required";
-              }
               // Render title
               return (
                 <div key={j} className="medium-12 columns">
                   <label htmlFor={attribute.key}>{attribute.label}</label>
                   <em>{attribute.instructions}</em>
-                  <input
-                    id={attribute.key}
-                    name={attribute.key}
-                    type="text"
-                    min="2"
-                    max="150"
-                    required={_required}>
-                  </input>
                 </div>
               );
             }
             else if (attribute.type === 'description' && attribute.input === 'text') {
               // Render a description field
-              let _required = '';
-              if (attribute.required) {
-                _required = "required";
-              }
               return (
                 <div key={j} className="medium-12 columns">
                   <label htmlFor={attribute.key}>{attribute.label}</label>
                   <em>{attribute.instructions}</em>
-                  <textarea
-                    id={attribute.key}
-                    className='descriptionInput'
-                    name={attribute.key}
-                    data-min-rows="1"
-                    rows="1"
-                    required={_required}
-                    value={this.state[attribute.key]}
-                    onChange={(e)=>this.handleInputChange(e)} >
-                  </textarea>
                 </div>
               );
             }
@@ -253,22 +267,24 @@ class PostForm extends Component {
             }
             else if (attribute.type === 'datetime' && attribute.input === 'date') {
               // Render Date field
-              let _required = '';
-              if (attribute.required) {
-                _required = "required";
-              }
-
               return (
                 <div key={j} className="medium-12 columns">
                   <label htmlFor={attribute.key}>{attribute.label}</label>
                   <em>{attribute.instructions}</em>
-                  <input
+                  <DatePicker
                     id={attribute.key}
                     name={attribute.key}
                     type={attribute.input}
-                    required={_required}
+                    required={attribute.required}
                     value={this.state[attribute.key]}
-                    onChange={(e)=>this.handleInputChange(e)} />
+                    selected={this.state[attribute.key]}
+                    onChange={(date)=>{
+                      this.setState({
+                        [attribute.key]: date
+                      });
+                    }}
+                    dateFormat="MMM dd, yyyy"
+                    />
                 </div>
               );
             }
@@ -283,13 +299,20 @@ class PostForm extends Component {
                 <div key={j} className="medium-12 columns">
                   <label htmlFor={attribute.key}>{attribute.label}</label>
                   <em>{attribute.instructions}</em>
-                  <input
+                  <DatePicker
                     id={attribute.key}
                     name={attribute.key}
                     type={attribute.input}
                     required={_required}
                     value={this.state[attribute.key]}
-                    onChange={(e)=>this.handleInputChange(e)} />
+                    selected={this.state[attribute.key]}
+                    onChange={(dateTime)=>{
+                      this.setState({
+                        [attribute.key]: dateTime
+                      });
+                    }}
+                    showTimeSelect
+                    dateFormat="MMM dd, yyyy h:mm aa" />
                 </div>
               );
             }
@@ -348,21 +371,26 @@ class PostForm extends Component {
             else if (attribute.type === 'varchar' && attribute.input === 'radio') {
               // Render Radio field
               let elements = []
-              for (var ij=0; ij<attribute.options.length; ij++) {
 
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+
+              for (var ij=0; ij<attribute.options.length; ij++) {
                 let _elements = <span key={ij}>
                   <input
                     id={attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")}
                     name={attribute.key}
                     type={attribute.input}
                     value={attribute.options[ij]}
-                    checked={this.state[attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")]}
-                    required="required"
-                    onChange={(e)=>this.handleRadioChange(e)}  />
+                    required={_required}
+                    onChange={(e)=>this.handleRadioChange(e)}
+                    defaultChecked={this.state[attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")]} />
                   <label htmlFor={attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")}>{attribute.options[ij]}</label>
                 </span>
 
-                elements[ij] = _elements
+                elements.push(_elements)
               }
               return (
                 <div key={j} className="medium-12 columns">
@@ -374,7 +402,6 @@ class PostForm extends Component {
             }
           }
         })
-
       }
 
       /**

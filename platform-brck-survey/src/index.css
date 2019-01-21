@@ -230,6 +230,7 @@ svg:not(:root) {
      */
 button,
 input,
+DatePicker,
 optgroup,
 select,
 textarea {
@@ -509,7 +510,11 @@ textarea {
 .is-hidden {
   display: none !important; }
 
-[type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'],
+.react-datepicker-wrapper {
+  display: block;
+}
+
+DatePicker, [type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'],
 textarea {
   display: block;
   box-sizing: border-box;

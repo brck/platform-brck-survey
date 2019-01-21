@@ -3,7 +3,7 @@ import * as fetch from 'isomorphic-fetch';
 // @TODO: actually read these from the env
 const baseUrl = process.env.API_BASEURL || 'https://brck-tests.api.ushahidi.io';
 const apiPrefix = process.env.API_PREFIX || '/api/v3';
-const uiClientSecret = process.env.OAUTH_CLIENT_SECRET || '3a845183-62f4-4d92-b1fc-29d81188b5aa';
+const uiClientSecret = process.env.OAUTH_CLIENT_SECRET || '35e7f0bca957836d05ca0492211b0ac707671261';
 
 export const getConfig = () => fetch(`${baseUrl}${apiPrefix}/config`)
   .then((response) => {
@@ -51,7 +51,6 @@ export const getToken = () => {
     method: 'post',
     body: JSON.stringify(requestPayload),
     headers: {
-      // Authorization: `Bearer ${}`,
       'Content-Type': 'application/json',
     },
   }).then(response => response.json())
@@ -60,17 +59,25 @@ export const getToken = () => {
 
 export const sendFormData = (formData, theToken) => {
   const authString = `Bearer ${theToken}`;
-  const fetchConfig = {
+  // const fetchConfig = {
+  //   headers: {
+  //     Authorization: authString,
+  //     'Content-Type': 'application/json',
+  //   },
+  //   method: 'post',
+  //   body: JSON.stringify(formData),
+  // };
+  console.log(authString)
+  console.log(formData)
+
+  return fetch(`${baseUrl}${apiPrefix}/posts`, {
+    method: 'post',
     headers: {
       Authorization: authString,
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    method: 'post',
-    body: JSON.stringify(formData),
-  };
-
-  return fetch(`${baseUrl}${apiPrefix}/posts`, fetchConfig)
-    .then((response) => {
+    body: JSON.stringify(formData)
+  }).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
       }
