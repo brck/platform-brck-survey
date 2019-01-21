@@ -60,7 +60,6 @@ class PostForm extends Component {
       let _checkBox = event.target;
       let _key = _checkBox.attributes.name.value
       let _ref = _checkBox.attributes.value.value.replace(/ /gi,"_")
-      console.log(_key)
 
       if (_checkBox.checked) {
         this.setState({[_key + "_" + _ref]: true})
@@ -73,7 +72,7 @@ class PostForm extends Component {
       let _radio = event.target;
       let _key = _radio.attributes.name.value
       let _ref = _radio.attributes.value.value.replace(/ /gi,"_")
-      console.log(_key)
+
       if (_radio.checked) {
         this.setState({[_key + "_" + _ref]: true})
       } else {
