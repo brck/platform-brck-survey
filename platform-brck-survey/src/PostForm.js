@@ -311,7 +311,7 @@ class PostForm extends Component {
                       });
                     }}
                     showTimeSelect
-                    dateFormat="MMM dd, yyyy h:mm aa" />
+                    dateFormat="MMM dd, yyyy HH:mm" />
                 </div>
               );
             }

@@ -5,6 +5,14 @@ const baseUrl = process.env.API_BASEURL || 'https://brck-tests.api.ushahidi.io';
 const apiPrefix = process.env.API_PREFIX || '/api/v3';
 const uiClientSecret = process.env.OAUTH_CLIENT_SECRET || '35e7f0bca957836d05ca0492211b0ac707671261';
 
+let formId = 0
+
+export const setFormId = (fId) => {
+  if (fId > 0) {
+    formId = fId;
+  }
+}
+
 export const getConfig = () => fetch(`${baseUrl}${apiPrefix}/config`)
   .then((response) => {
     if (!response.ok) {
@@ -27,15 +35,15 @@ export const getFeatures = () => fetch(`${baseUrl}${apiPrefix}/config/features`)
   .then(response => response.json())
   .then(data => data);
 
-export const getFormInfo = formId => fetch(`${baseUrl}${apiPrefix}/forms/${formId}`)
+export const getFormInfo = () => fetch(`${baseUrl}${apiPrefix}/forms/${formId}`)
   .then(response => response.json())
   .then(data => data);
 
-export const getAttributes = () => fetch(`${baseUrl}${apiPrefix}/forms/2/attributes?order=asc&orderby=priority`)
+export const getAttributes = () => fetch(`${baseUrl}${apiPrefix}/forms/${formId}/attributes?order=asc&orderby=priority`)
   .then(response => response.json())
   .then(data => data);
 
-export const getStages = () => fetch(`${baseUrl}${apiPrefix}/forms/2/stages?order=asc&orderby=priority`)
+export const getStages = () => fetch(`${baseUrl}${apiPrefix}/forms/${formId}/stages?order=asc&orderby=priority`)
   .then(response => response.json())
   .then(data => data);
 
@@ -59,17 +67,6 @@ export const getToken = () => {
 
 export const sendFormData = (formData, theToken) => {
   const authString = `Bearer ${theToken}`;
-  // const fetchConfig = {
-  //   headers: {
-  //     Authorization: authString,
-  //     'Content-Type': 'application/json',
-  //   },
-  //   method: 'post',
-  //   body: JSON.stringify(formData),
-  // };
-  console.log(authString)
-  console.log(formData)
-
   return fetch(`${baseUrl}${apiPrefix}/posts`, {
     method: 'post',
     headers: {
