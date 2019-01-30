@@ -11,11 +11,11 @@ import './FormStyles.css'
 
 class PostForm extends Component {
     constructor() {
-        super();
-        this.state = {
-            formState: {
-            },
-        }
+      super();
+      this.state = {
+        formState: {
+        },
+      }
     }
 
     componentDidMount() {
@@ -154,7 +154,14 @@ class PostForm extends Component {
     render() {
 
       if (this.state.submitted) {
-        return (<div>Submitted!</div>)
+        return (
+          <div class="large-12 columns callout-top-margin">
+            <div class="callout success">
+              <h3>Submitted </h3><hr />
+              <p class="callout-message">You have submitted the form successfully.</p>
+            </div>
+          </div>
+        )
       }
 
       let stageSet = 'Loading...';
@@ -180,8 +187,8 @@ class PostForm extends Component {
               // Render title
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <h2>{attribute.label}</h2>
+                  <em><small>{attribute.instructions}</small></em>
                 </div>
               );
             }
@@ -189,8 +196,11 @@ class PostForm extends Component {
               // Render a description field
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <p>
+                    <strong>{attribute.label}</strong>
+                    <br />
+                    <em><small>{attribute.instructions}</small></em>
+                  </p>
                 </div>
               );
             }
@@ -202,8 +212,8 @@ class PostForm extends Component {
               }
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor='{attribute.key}'>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   <input
                     id={attribute.key}
                     name={attribute.key}
@@ -222,8 +232,8 @@ class PostForm extends Component {
               }
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   <input
                     id={attribute.key}
                     name={attribute.key}
@@ -243,8 +253,8 @@ class PostForm extends Component {
 
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   <input
                     id={attribute.key}
                     name={attribute.key}
@@ -258,8 +268,8 @@ class PostForm extends Component {
             else if (attribute.type === 'point' && attribute.input === 'location') {
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   <div id={attribute.label} className="map"></div>
                 </div>
               );
@@ -268,8 +278,8 @@ class PostForm extends Component {
               // Render Date field
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   <DatePicker
                     id={attribute.key}
                     name={attribute.key}
@@ -296,8 +306,8 @@ class PostForm extends Component {
 
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   <DatePicker
                     id={attribute.key}
                     name={attribute.key}
@@ -329,8 +339,8 @@ class PostForm extends Component {
               }
               return (
                 <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key} >{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   <select id={attribute.key} name={attribute.key} value={this.state[attribute.key]} onChange={(e) => this.handleSelectChange(e)}>
                     {options}
                   </select>
@@ -361,8 +371,8 @@ class PostForm extends Component {
               }
               return (
                 <div key={j} className="medium-12 columns">
-                  <label>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   {elements}
                 </div>
               );
@@ -393,8 +403,8 @@ class PostForm extends Component {
               }
               return (
                 <div key={j} className="medium-12 columns">
-                  <label>{attribute.label}</label>
-                  <em>{attribute.instructions}</em>
+                  <label><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
                   {elements}
                 </div>
               );
