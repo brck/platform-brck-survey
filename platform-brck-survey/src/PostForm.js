@@ -57,15 +57,30 @@ class PostForm extends Component {
     }
 
     handleCheckBoxChange = (event) => {
-      let _checkBox = event.target;
-      let _key = _checkBox.attributes.name.value
-      let _ref = _checkBox.attributes.value.value.replace(/ /gi,"_")
+      const _checkBox = event.target;
+      const _key = _checkBox.attributes.name.value
+      const _ref = _checkBox.attributes.value.value.replace(/ /gi,"_")
+
+      let valObj = this.state[_key].split(", ")
 
       if (_checkBox.checked) {
         this.setState({[_key + "_" + _ref]: true})
+        if (valObj[0] === "") {
+          valObj[0] = _checkBox.attributes.value.value
+        } else {
+          valObj.push(_checkBox.attributes.value.value)
+        }
       } else {
         this.setState({[_key + "_" + _ref]: false})
+        for (var i=valObj.length-1; i>=0; i--) {
+            if (valObj[i] === _checkBox.attributes.value.value) {
+                valObj.splice(i, 1);
+                break;
+            }
+        }
       }
+
+      this.setState({[_key]: valObj.join(", ")})
     }
 
     handleRadioChange = (event) => {
@@ -78,6 +93,8 @@ class PostForm extends Component {
       } else {
         this.setState({[_key + "_" + _ref]: false})
       }
+
+      this.setState({[_key]: _radio.attributes.value.value})
     }
 
     handleSelectChange = (event) => {
@@ -105,14 +122,13 @@ class PostForm extends Component {
       let payloadData = {}
 
       const formElements = this.props.attributes.results
-
       if (formElements !== undefined) {
         for (var i=0; i<formElements.length; i++) {
           if (formElements[i].type === 'title' && formElements[i].input === 'text') {
-            formTitle = formElements[i].instructions;
+            formTitle = formElements[i].label;
           }
           if (formElements[i].type === 'description' && formElements[i].input === 'text') {
-            formDescription = formElements[i].instructions;
+            formDescription = formElements[i].label;
           }
           if (this.state[formElements[i].key] !== "" && this.state[formElements[i].key] !== undefined) {
             payloadData[formElements[i].key] = [this.state[formElements[i].key]]
@@ -128,7 +144,7 @@ class PostForm extends Component {
           "id": formId
         }
       }
-
+      
       if (!this.state.accessToken) {
         api.getToken().then((response) => {
           this.setState({ accessToken: response.access_token });
@@ -178,6 +194,7 @@ class PostForm extends Component {
 
       let attributeSet = '';
       if (this.props.attributes.results) {
+
         // eslint-disable-next-line
         attributeSet = this.props.attributes.results.map((attribute, j) => {
           if (this.state[attribute.key] !== undefined) {
@@ -218,6 +235,45 @@ class PostForm extends Component {
                     id={attribute.key}
                     name={attribute.key}
                     type={attribute.input}
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} />
+                </div>
+              );
+            }
+            else if (attribute.type === 'varchar' && attribute.input === 'text') {
+              // Render Decimal field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
+                  <input
+                    id={attribute.key}
+                    name={attribute.key}
+                    type={attribute.input}
+                    required={_required}
+                    value={this.state[attribute.key]}
+                    onChange={(e)=>this.handleInputChange(e)} />
+                </div>
+              );
+            }
+            else if (attribute.type === 'text' && attribute.input === 'textarea') {
+              // Render Decimal field
+              let _required = '';
+              if (attribute.required) {
+                _required = "required";
+              }
+              return (
+                <div key={j} className="medium-12 columns">
+                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em>
+                  <textarea
+                    id={attribute.key}
+                    name={attribute.key}
                     required={_required}
                     value={this.state[attribute.key]}
                     onChange={(e)=>this.handleInputChange(e)} />
@@ -366,13 +422,14 @@ class PostForm extends Component {
                     required={_required}
                     onChange={(e)=>this.handleCheckBoxChange(e)}  />
                   <label htmlFor={attribute.key + "_" + attribute.options[i].replace(/ /gi,"_")}>{attribute.options[i]}</label>
+                  <br />
                 </span>
                 elements[i] =  _elements
               }
               return (
                 <div key={j} className="medium-12 columns">
-                  <label><strong>{attribute.label}</strong></label>
-                  <em><small>{attribute.instructions}</small></em>
+                  <p><label><strong>{attribute.label}</strong></label>
+                  <em><small>{attribute.instructions}</small></em></p>
                   {elements}
                 </div>
               );
@@ -397,6 +454,7 @@ class PostForm extends Component {
                     onChange={(e)=>this.handleRadioChange(e)}
                     defaultChecked={this.state[attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")]} />
                   <label htmlFor={attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")}>{attribute.options[ij]}</label>
+                  <br />
                 </span>
 
                 elements.push(_elements)
