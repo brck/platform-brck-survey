@@ -1,5 +1,6 @@
 // React native imports
 import React, { Component } from 'react';
+import Map from 'react-js-google-maps';
 
 // Code imports
 import * as api from './helpers/fetchData';
@@ -9,17 +10,66 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import './FormStyles.css'
 
+const markers = [];
+
 class PostForm extends Component {
     constructor() {
       super();
       this.state = {
         formState: {
         },
+        zoom: 4,
+        lat: 3,
+        lng: 25.044,
+        mapMarkers: []
       }
     }
 
     componentDidMount() {
       this.prepStates()
+
+    }
+
+    initMap = (map, ref) => {
+      this.setMapOnAll(map);
+
+      map.addListener('click', (e) => {
+        let lat = e.latLng.lat();
+        let lng = e.latLng.lng();
+
+        this.clearMarkers(map)
+
+        this.addMarker(map, e.latLng, ref);
+
+        map.panTo(new window.google.maps.LatLng(lat,lng));
+
+        this.setState({
+          [ref]: lat + ", " + lng
+        })
+
+      });
+
+      return false;
+    };
+
+    addMarker(map, location, ref) {
+      var marker = new window.google.maps.Marker({
+        position: location,
+        map: map,
+        ref: ref
+      });
+      markers[0] = marker;
+    }
+
+    setMapOnAll(map) {
+      for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+        map.panTo(new window.google.maps.LatLng(markers[i].getPosition().lat(),markers[i].getPosition().lng()));
+      }
+    }
+
+    clearMarkers() {
+      this.setMapOnAll(null);
     }
 
     setDynamicStateKey = async (key, val) => {
@@ -144,23 +194,25 @@ class PostForm extends Component {
           "id": formId
         }
       }
-      
-      if (!this.state.accessToken) {
-        api.getToken().then((response) => {
-          this.setState({ accessToken: response.access_token });
-        })
-        .then(() => api.sendFormData(postData, this.state.accessToken).then(response => {
-          if (response.ok) {
-            this.setState({ submitted: true });
-          }
-        }));
-      } else {
-        api.sendFormData(postData, this.state.accessToken).then(response => {
-          if (response.ok) {
-            this.setState({ submitted: true });
-          }
-        });
-      }
+
+      console.log(postData)
+
+      // if (!this.state.accessToken) {
+      //   api.getToken().then((response) => {
+      //     this.setState({ accessToken: response.access_token });
+      //   })
+      //   .then(() => api.sendFormData(postData, this.state.accessToken).then(response => {
+      //     if (response.ok) {
+      //       this.setState({ submitted: true });
+      //     }
+      //   }));
+      // } else {
+      //   api.sendFormData(postData, this.state.accessToken).then(response => {
+      //     if (response.ok) {
+      //       this.setState({ submitted: true });
+      //     }
+      //   });
+      // }
     }
 
     /**
@@ -168,7 +220,6 @@ class PostForm extends Component {
      */
 
     render() {
-
       if (this.state.submitted) {
         return (
           <div class="large-12 columns callout-top-margin">
@@ -322,11 +373,26 @@ class PostForm extends Component {
               );
             }
             else if (attribute.type === 'point' && attribute.input === 'location') {
+              const mapOptions = {
+                zoom: 5,
+                center: { lat: -1, lng: 38.5 }
+              }
+
               return (
                 <div key={j} className="medium-12 columns">
                   <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
                   <em><small>{attribute.instructions}</small></em>
-                  <div id={attribute.label} className="map"></div>
+                  <div id={attribute.label} className="map">
+                    <Map
+                      id="map"
+                      apiKey="AIzaSyAPDk9dEGoSmus29wHWjddbv1Q34fWcIBE"
+                      mapOptions={mapOptions}
+                      style={{ width: '100%', height: 480 }}
+                      onLoad={(e) => {
+                        this.initMap(e, attribute.key);
+                      }}
+                    />
+                  </div>
                 </div>
               );
             }

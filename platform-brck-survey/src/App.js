@@ -3,7 +3,7 @@ import PostForm from './PostForm';
 import * as api from './helpers/fetchData';
 import './App.css';
 
-const formId = 3
+const formId = 2
 
 class App extends Component {
   constructor(props) {
