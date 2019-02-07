@@ -44,7 +44,7 @@ class PostForm extends Component {
         map.panTo(new window.google.maps.LatLng(lat,lng));
 
         this.setState({
-          [ref]: lat + ", " + lng
+          [ref]: {"lat":lat, "lon":lng}
         })
 
       });
@@ -195,24 +195,22 @@ class PostForm extends Component {
         }
       }
 
-      console.log(postData)
-
-      // if (!this.state.accessToken) {
-      //   api.getToken().then((response) => {
-      //     this.setState({ accessToken: response.access_token });
-      //   })
-      //   .then(() => api.sendFormData(postData, this.state.accessToken).then(response => {
-      //     if (response.ok) {
-      //       this.setState({ submitted: true });
-      //     }
-      //   }));
-      // } else {
-      //   api.sendFormData(postData, this.state.accessToken).then(response => {
-      //     if (response.ok) {
-      //       this.setState({ submitted: true });
-      //     }
-      //   });
-      // }
+      if (!this.state.accessToken) {
+        api.getToken().then((response) => {
+          this.setState({ accessToken: response.access_token });
+        })
+        .then(() => api.sendFormData(postData, this.state.accessToken).then(response => {
+          if (response.ok) {
+            this.setState({ submitted: true });
+          }
+        }));
+      } else {
+        api.sendFormData(postData, this.state.accessToken).then(response => {
+          if (response.ok) {
+            this.setState({ submitted: true });
+          }
+        });
+      }
     }
 
     /**
