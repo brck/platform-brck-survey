@@ -37,7 +37,8 @@ export const getFeatures = () => fetch(`${baseUrl}${apiPrefix}/config/features`)
 
 export const getFormInfo = () => fetch(`${baseUrl}${apiPrefix}/forms/${formId}`)
   .then(response => response.json())
-  .then(data => data);
+  .then(data => data)
+  .catch(error => {console.log(error)});
 
 export const getAttributes = () => fetch(`${baseUrl}${apiPrefix}/forms/${formId}/attributes?order=asc&orderby=priority`)
   .then(response => response.json())

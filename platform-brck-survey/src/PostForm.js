@@ -33,15 +33,13 @@ class PostForm extends Component {
     initMap = (map, ref) => {
       this.setMapOnAll(map);
 
-      map.addListener('click', (e) => {
+      map.addListener('click', async (e) => {
         let lat = e.latLng.lat();
         let lng = e.latLng.lng();
 
-        this.clearMarkers(map)
+        await this.addMarker(map, e.latLng, ref);
 
-        this.addMarker(map, e.latLng, ref);
-
-        map.panTo(new window.google.maps.LatLng(lat,lng));
+        await map.panTo(new window.google.maps.LatLng(lat,lng));
 
         this.setState({
           [ref]: {"lat":lat, "lon":lng}
@@ -65,11 +63,8 @@ class PostForm extends Component {
       for (var i = 0; i < markers.length; i++) {
         markers[i].setMap(map);
         map.panTo(new window.google.maps.LatLng(markers[i].getPosition().lat(),markers[i].getPosition().lng()));
+        map.setCenter(markers[i].getPosition());
       }
-    }
-
-    clearMarkers() {
-      this.setMapOnAll(null);
     }
 
     setDynamicStateKey = async (key, val) => {
@@ -220,10 +215,10 @@ class PostForm extends Component {
     render() {
       if (this.state.submitted) {
         return (
-          <div class="large-12 columns callout-top-margin">
-            <div class="callout success">
+          <div className="large-12 columns callout-top-margin">
+            <div className="callout success">
               <h3>Submitted </h3><hr />
-              <p class="callout-message">You have submitted the form successfully.</p>
+              <p className="callout-message">You have submitted the form successfully.</p>
             </div>
           </div>
         )
@@ -372,8 +367,8 @@ class PostForm extends Component {
             }
             else if (attribute.type === 'point' && attribute.input === 'location') {
               const mapOptions = {
-                zoom: 5,
-                center: { lat: -1, lng: 38.5 }
+                zoom: 10,
+                center: { lat: -1.35, lng: 36.7 }
               }
 
               return (
@@ -405,8 +400,7 @@ class PostForm extends Component {
                     name={attribute.key}
                     type={attribute.input}
                     required={attribute.required}
-                    value={this.state[attribute.key]}
-                    selected={this.state[attribute.key]}
+                    selected={this.state[attribute.key] !== "" ? this.state[attribute.key] : null}
                     onChange={(date)=>{
                       this.setState({
                         [attribute.key]: date
@@ -419,11 +413,6 @@ class PostForm extends Component {
             }
             else if (attribute.type === 'datetime' && attribute.input === 'datetime') {
               // Render Datetime field
-              let _required = '';
-              if (attribute.required) {
-                _required = "required";
-              }
-
               return (
                 <div key={j} className="medium-12 columns">
                   <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
@@ -432,9 +421,8 @@ class PostForm extends Component {
                     id={attribute.key}
                     name={attribute.key}
                     type={attribute.input}
-                    required={_required}
-                    value={this.state[attribute.key]}
-                    selected={this.state[attribute.key]}
+                    required={attribute.required}
+                    selected={this.state[attribute.key] !== "" ? this.state[attribute.key] : null}
                     onChange={(dateTime)=>{
                       this.setState({
                         [attribute.key]: dateTime
