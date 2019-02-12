@@ -64,7 +64,7 @@ class App extends Component {
       } else {
         return (
           <div className="large-12 columns callout-top-margin">
-            <div className="callout success">
+            <div className="callout alert">
               <h3>Error! </h3><hr />
               <p className="callout-message">No survey has been specified or found.</p>
             </div>
