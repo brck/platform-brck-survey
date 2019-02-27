@@ -214,6 +214,7 @@ class PostForm extends Component {
 
     render() {
       if (this.state.submitted) {
+        window.parent.postMessage('survey_complete', '*');
         return (
           <div className="large-12 columns callout-top-margin">
             <div className="callout success">
