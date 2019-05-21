@@ -6,6 +6,7 @@ import queryString from 'query-string';
 
 const values = queryString.parse(document.location.search)
 const formId = (values.survey !== undefined && values.survey !== "" ? parseInt(values.survey) : 0)
+const userId = (values.uid !== undefined && values.uid !== "" ? values.uid : "anonymous")
 // console.log(formId)
 
 class App extends Component {
@@ -59,7 +60,7 @@ class App extends Component {
     if (this.state.surveySought) {
       if (this.state.formInfo !== undefined && Object.getOwnPropertyNames(this.state.formInfo).length > 0) {
         return (<div className="App">
-          <PostForm stages={this.state.stages} attributes={this.state.attributes} />
+          <PostForm stages={this.state.stages} attributes={this.state.attributes} uid={userId} />
         </div>)
       } else {
         return (

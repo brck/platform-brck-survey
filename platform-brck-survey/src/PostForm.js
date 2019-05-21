@@ -154,6 +154,11 @@ class PostForm extends Component {
       this.setState({[_key]: _element.value})
     }
 
+    handleUserId = (elemKey) => {
+      if (this.state[elemKey] !== undefined) {
+        // this.setState({[elemKey]: this.props.uid});
+      }
+    }
     /**
      * Form submit handling
      */
@@ -163,10 +168,13 @@ class PostForm extends Component {
       let formTitle = ""
       let formDescription = ""
       let formId = this.props.stages.results[0].form_id
+      let uid = this.props.uid
 
+      let _payloadData = {}
       let payloadData = {}
 
       const formElements = this.props.attributes.results
+
       if (formElements !== undefined) {
         for (var i=0; i<formElements.length; i++) {
           if (formElements[i].type === 'title' && formElements[i].input === 'text') {
@@ -175,9 +183,16 @@ class PostForm extends Component {
           if (formElements[i].type === 'description' && formElements[i].input === 'text') {
             formDescription = formElements[i].label;
           }
-          if (this.state[formElements[i].key] !== "" && this.state[formElements[i].key] !== undefined) {
-            payloadData[formElements[i].key] = [this.state[formElements[i].key]]
+
+          if (formElements[i].label === "User ID") {
+            _payloadData[formElements[i].key] = [uid];
+          } else if (this.state[formElements[i].label] !== "" && this.state[formElements[i].key] !== undefined) {
+            _payloadData[formElements[i].key] = [this.state[formElements[i].key]]
           }
+        }
+
+        for (var j=0; j<formElements.length; j++) {
+          payloadData[formElements[j].key] = _payloadData[formElements[j].key]
         }
       }
 
@@ -214,7 +229,7 @@ class PostForm extends Component {
 
     render() {
       if (this.state.submitted) {
-        window.parent.postMessage('survey_complete', '*');
+        window.parent.postMessage('complete', '*');
         return (
           <div className="large-12 columns callout-top-margin">
             <div className="callout success">
@@ -292,19 +307,34 @@ class PostForm extends Component {
               if (attribute.required) {
                 _required = "required";
               }
-              return (
-                <div key={j} className="medium-12 columns">
-                  <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
-                  <em><small>{attribute.instructions}</small></em>
-                  <input
-                    id={attribute.key}
-                    name={attribute.key}
-                    type={attribute.input}
-                    required={_required}
-                    value={this.state[attribute.key]}
-                    onChange={(e)=>this.handleInputChange(e)} />
-                </div>
-              );
+              if (attribute.label === "User ID") {
+                this.handleUserId(attribute.key);
+                return (
+                  <div key={j} className="medium-12 columns">
+                    <input
+                      id={attribute.key}
+                      name={attribute.key}
+                      type='hidden'
+                      required={_required}
+                      value={this.props.uid}
+                      onChange={(e)=>this.handleInputChange(e)} />
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={j} className="medium-12 columns">
+                    <label htmlFor={attribute.key}><strong>{attribute.label}</strong></label>
+                    <em><small>{attribute.instructions}</small></em>
+                    <input
+                      id={attribute.key}
+                      name={attribute.key}
+                      type={attribute.input}
+                      required={_required}
+                      value={this.state[attribute.key]}
+                      onChange={(e)=>this.handleInputChange(e)} />
+                  </div>
+                );
+              }
             }
             else if (attribute.type === 'text' && attribute.input === 'textarea') {
               // Render Decimal field
