@@ -308,7 +308,6 @@ class PostForm extends Component {
                 _required = "required";
               }
               if (attribute.label === "User ID") {
-                this.handleUserId(attribute.key);
                 return (
                   <div key={j} className="medium-12 columns">
                     <input
