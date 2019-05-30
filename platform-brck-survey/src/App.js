@@ -7,7 +7,7 @@ import queryString from 'query-string';
 const values = queryString.parse(document.location.search)
 const formId = (values.survey !== undefined && values.survey !== "" ? parseInt(values.survey) : 0)
 const userId = (values.uid !== undefined && values.uid !== "" ? values.uid : "anonymous")
-// console.log(formId)
+const host = (values.host !== undefined && values.host !== "" ? values.host : "brck-tests")
 
 class App extends Component {
   constructor(props) {
@@ -33,6 +33,7 @@ class App extends Component {
 
   readData = async () => {
     await api.setFormId(formId)
+    await api.setHost(host)
     await api.getFormInfo(formId)
     .then(formInfo => {
       if (formInfo !== undefined && Object.getOwnPropertyNames(formInfo).length > 0) {
@@ -60,7 +61,7 @@ class App extends Component {
     if (this.state.surveySought) {
       if (this.state.formInfo !== undefined && Object.getOwnPropertyNames(this.state.formInfo).length > 0) {
         return (<div className="App">
-          <PostForm stages={this.state.stages} attributes={this.state.attributes} uid={userId} />
+          <PostForm stages={this.state.stages} attributes={this.state.attributes} uid={userId} host={host} />
         </div>)
       } else {
         return (
