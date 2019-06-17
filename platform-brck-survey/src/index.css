@@ -316,14 +316,35 @@ input[type='search'] {
   vertical-align: baseline;
   margin-left: 0.5rem;
   margin-right: 1rem;
-  margin-bottom: 0; }
-  [type='checkbox'] + label[for],
-  [type='radio'] + label[for] {
-    cursor: pointer; }
+  margin-bottom: 0;
+}
+
+[type='checkbox'] + label[for],
+[type='radio'] + label[for] {
+  cursor: pointer;
+}
 
 label > [type='checkbox'],
 label > [type='radio'] {
   margin-right: 0.5rem; }
+
+[type='radio'], [type='checkbox'] {
+  display: block;
+  width: 20px;
+  float: left;
+  margin-top: 5px;
+}
+
+[type='radio'] + label, [type='checkbox'] + label {
+  display: block;
+  width: calc(100% - 50px);
+  float: left;
+}
+
+[type='radio'] + label + br, [type='checkbox'] + label + br {
+  display: block;
+  width: 100%
+}
 
 [type='file'] {
   width: 100%; }

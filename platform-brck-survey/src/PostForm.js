@@ -242,19 +242,20 @@ class PostForm extends Component {
 
       let stageSet = 'Loading...';
 
-      if (this.props.stages) {
-        stageSet = this.props.stages.results.map(function (aStage, i) {
-          return <div key={i} className="medium-12 columns">
-            <h2>{aStage.label}</h2>
-            <hr/>
-            <h4>{aStage.description}</h4>
-          </div>;
-        })
-      }
+      // if (this.props.stages) {
+      //   stageSet = this.props.stages.results.map(function (aStage, i) {
+      //     return <div key={i} className="medium-12 columns">
+      //       <h2>{aStage.label}</h2>
+      //       <hr/>
+      //       <h4>{aStage.description}</h4>
+      //     </div>;
+      //   })
+      // }
 
       let attributeSet = '';
       if (this.props.attributes.results) {
-
+        stageSet = "";
+        
         // eslint-disable-next-line
         attributeSet = this.props.attributes.results.map((attribute, j) => {
           if (this.state[attribute.key] !== undefined) {
