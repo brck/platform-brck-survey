@@ -5,7 +5,7 @@
 
 URL to render a form in the Moja experience is as follows;
 
-`https://www.mojawifi.com/moja-survey/?host={hostname}&survey={surveyId}&uId={userId}`
+`https://www.mojawifi.com/moja-survey/?survey={surveyId}&host={hostname}&uId={userId}`
 
 `hostname` refers to the ushahidi.io server hosting the forms to render. When not specified, it defaults to `brck-tests`. This variable is NOT mandatory.
 
