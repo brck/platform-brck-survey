@@ -106,7 +106,11 @@ class PostForm extends Component {
       const _key = _checkBox.attributes.name.value
       const _ref = _checkBox.attributes.value.value.replace(/ /gi,"_")
 
-      let valObj = this.state[_key].split(", ")
+      let valObj = [];
+
+      if (this.state[_key].length > 0) {
+        valObj = this.state[_key];
+      }
 
       if (_checkBox.checked) {
         this.setState({[_key + "_" + _ref]: true})
@@ -118,14 +122,14 @@ class PostForm extends Component {
       } else {
         this.setState({[_key + "_" + _ref]: false})
         for (var i=valObj.length-1; i>=0; i--) {
-            if (valObj[i] === _checkBox.attributes.value.value) {
-                valObj.splice(i, 1);
-                break;
-            }
+          if (valObj[i] === _checkBox.attributes.value.value) {
+            valObj.splice(i, 1);
+            break;
+          }
         }
       }
 
-      this.setState({[_key]: valObj.join(", ")})
+      this.setState({[_key]: valObj})
     }
 
     handleRadioChange = (event) => {
@@ -154,11 +158,6 @@ class PostForm extends Component {
       this.setState({[_key]: _element.value})
     }
 
-    handleUserId = (elemKey) => {
-      if (this.state[elemKey] !== undefined) {
-        // this.setState({[elemKey]: this.props.uid});
-      }
-    }
     /**
      * Form submit handling
      */
@@ -192,7 +191,11 @@ class PostForm extends Component {
         }
 
         for (var j=0; j<formElements.length; j++) {
-          payloadData[formElements[j].key] = _payloadData[formElements[j].key]
+          if (formElements[j].type === 'varchar' && formElements[j].input === 'checkbox') {
+            payloadData[formElements[j].key] = _payloadData[formElements[j].key][0]
+          } else {
+            payloadData[formElements[j].key] = _payloadData[formElements[j].key]
+          }
         }
       }
 
@@ -255,7 +258,7 @@ class PostForm extends Component {
       let attributeSet = '';
       if (this.props.attributes.results) {
         stageSet = "";
-        
+
         // eslint-disable-next-line
         attributeSet = this.props.attributes.results.map((attribute, j) => {
           if (this.state[attribute.key] !== undefined) {
@@ -505,7 +508,7 @@ class PostForm extends Component {
                     required={_required}
                     onChange={(e)=>this.handleCheckBoxChange(e)}  />
                   <label htmlFor={attribute.key + "_" + attribute.options[i].replace(/ /gi,"_")}>{attribute.options[i]}</label>
-                  <br />
+                  <span class="item-separator">&nbsp;</span>
                 </span>
                 elements[i] =  _elements
               }
@@ -537,7 +540,7 @@ class PostForm extends Component {
                     onChange={(e)=>this.handleRadioChange(e)}
                     defaultChecked={this.state[attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")]} />
                   <label htmlFor={attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")}>{attribute.options[ij]}</label>
-                  <br />
+                  <span class="item-separator">&nbsp;</span>
                 </span>
 
                 elements.push(_elements)

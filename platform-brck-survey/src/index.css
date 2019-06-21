@@ -360,6 +360,13 @@ label {
     margin: 0 0 1rem;
     padding: 0.5625rem 0; }
 
+.item-separator {
+  display: block;
+  clear: both;
+  height: 3px;
+  overflow: hidden;
+}
+
 .help-text {
   margin-top: -0.5rem;
   font-size: 0.8125rem;
