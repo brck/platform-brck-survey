@@ -11,3 +11,12 @@ This is one of three repositories related to ISOOKO deployment of Ushahidi, [whi
 ## Acknowledgment
 This work has received support from the European Union’s Horizon 2020 research and innovation programme under [grant agreement No 779793](https://cordis.europa.eu/project/rcn/213085_en.html).
 
+URL to render a form in the Moja experience is as follows;
+
+`https://www.mojawifi.com/moja-survey/?survey={surveyId}&host={hostname}&uId={userId}`
+
+`hostname` refers to the ushahidi.io server hosting the forms to render. When not specified, it defaults to `brck-tests`. This variable is NOT mandatory.
+
+`surveyId` refers to the form id in the host above.  When not specified, it defaults to `0`. This variable is MANDATORY.
+
+`userId` referes to the Moja experience user id. Its use here is to attach a user to a survey fielded. This variable is NOT mandatory.

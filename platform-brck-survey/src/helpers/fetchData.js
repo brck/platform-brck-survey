@@ -1,11 +1,26 @@
 import * as fetch from 'isomorphic-fetch';
 
 // @TODO: actually read these from the env
-const baseUrl = process.env.API_BASEURL || 'http://localhost:8000';
-const apiPrefix = process.env.API_PREFIX || '/api/v3';
+
+const apiPrefix = process.env.API_SCHEME || 'https://';
+const baseUrl = process.env.API_BASEURL || 'api.ushahidi.io';
+const apiSuffix = process.env.API_PREFIX || '/api/v3';
 const uiClientSecret = process.env.OAUTH_CLIENT_SECRET || '35e7f0bca957836d05ca0492211b0ac707671261';
 
-export const getConfig = () => fetch(`${baseUrl}${apiPrefix}/config`)
+let formId = 0
+let host = ""
+
+export const setFormId = (fId) => {
+  if (fId > 0) {
+    formId = fId;
+  }
+}
+
+export const setHost = (serverHost) => {
+  host = apiPrefix + serverHost + '.' + baseUrl;
+}
+
+export const getConfig = () => fetch(`${host}${apiSuffix}/config`)
   .then((response) => {
     if (!response.ok) {
       throw Error(response.statusText);
@@ -15,27 +30,28 @@ export const getConfig = () => fetch(`${baseUrl}${apiPrefix}/config`)
   .then(data => data)
   .catch((error) => { console.log(`an error happened: ${error}`); });
 
-export const getTags = () => fetch(`${baseUrl}${apiPrefix}/tags`)
+export const getTags = () => fetch(`${host}${apiSuffix}/tags`)
   .then(response => response.json())
   .then(data => data);
 
-export const getSite = () => fetch(`${baseUrl}${apiPrefix}/site`)
+export const getSite = () => fetch(`${host}${apiSuffix}/site`)
   .then((response) => { console.log('the response', response); return response.json(); })
   .then(data => data);
 
-export const getFeatures = () => fetch(`${baseUrl}${apiPrefix}/config/features`)
+export const getFeatures = () => fetch(`${host}${apiSuffix}/config/features`)
   .then(response => response.json())
   .then(data => data);
 
-export const getFormInfo = formId => fetch(`${baseUrl}${apiPrefix}/forms/${formId}`)
+export const getFormInfo = () => fetch(`${host}${apiSuffix}/forms/${formId}`)
+  .then(response => response.json())
+  .then(data => data)
+  .catch(error => {console.log(error)});
+
+export const getAttributes = () => fetch(`${host}${apiSuffix}/forms/${formId}/attributes?order=asc&orderby=priority`)
   .then(response => response.json())
   .then(data => data);
 
-export const getAttributes = () => fetch(`${baseUrl}${apiPrefix}/forms/2/attributes?order=asc&orderby=priority`)
-  .then(response => response.json())
-  .then(data => data);
-
-export const getStages = () => fetch(`${baseUrl}${apiPrefix}/forms/2/stages?order=asc&orderby=priority`)
+export const getStages = () => fetch(`${host}${apiSuffix}/forms/${formId}/stages?order=asc&orderby=priority`)
   .then(response => response.json())
   .then(data => data);
 
@@ -47,11 +63,10 @@ export const getToken = () => {
     scope: 'posts country_codes media forms api tags savedsearches sets users stats layers config messages notifications webhooks contacts roles permissions csv',
   };
 
-  return fetch(`${baseUrl}/oauth/token`, {
+  return fetch(`${host}/oauth/token`, {
     method: 'post',
     body: JSON.stringify(requestPayload),
     headers: {
-      // Authorization: `Bearer ${}`,
       'Content-Type': 'application/json',
     },
   }).then(response => response.json())
@@ -60,17 +75,14 @@ export const getToken = () => {
 
 export const sendFormData = (formData, theToken) => {
   const authString = `Bearer ${theToken}`;
-  const fetchConfig = {
+  return fetch(`${host}${apiSuffix}/posts`, {
+    method: 'post',
     headers: {
       Authorization: authString,
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    method: 'post',
-    body: JSON.stringify(formData),
-  };
-
-  return fetch(`${baseUrl}${apiPrefix}/posts`, fetchConfig)
-    .then((response) => {
+    body: JSON.stringify(formData)
+  }).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
       }

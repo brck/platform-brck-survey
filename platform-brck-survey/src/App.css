@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  text-align: left;
 }
 
 .App-logo {
@@ -20,6 +20,14 @@
 
 .App-intro {
   font-size: large;
+}
+
+span {
+  display: inline;
+}
+
+.react-datepicker-wrapper, .react-datepicker__input-container {
+  display: block;
 }
 
 @keyframes App-logo-spin {
