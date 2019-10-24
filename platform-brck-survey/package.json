@@ -2,6 +2,7 @@
   "name": "platform-standalone-postform-react",
   "version": "0.1.2",
   "private": true,
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
     "query-string": "^6.2.0",
