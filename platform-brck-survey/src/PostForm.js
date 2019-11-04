@@ -412,7 +412,7 @@ class PostForm extends Component {
                   <div id={attribute.label} className="map">
                     <Map
                       id="map"
-                      apiKey="AIzaSyAPDk9dEGoSmus29wHWjddbv1Q34fWcIBE"
+                      apiKey="GOOGLE_MAPS_API_KEY"
                       mapOptions={mapOptions}
                       style={{ width: '100%', height: 480 }}
                       onLoad={(e) => {
