@@ -412,7 +412,7 @@ class PostForm extends Component {
                   <div id={attribute.label} className="map">
                     <Map
                       id="map"
-                      apiKey="GOOGLE_MAPS_API_KEY"
+                      apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
                       mapOptions={mapOptions}
                       style={{ width: '100%', height: 480 }}
                       onLoad={(e) => {
@@ -508,7 +508,7 @@ class PostForm extends Component {
                     required={_required}
                     onChange={(e)=>this.handleCheckBoxChange(e)}  />
                   <label htmlFor={attribute.key + "_" + attribute.options[i].replace(/ /gi,"_")}>{attribute.options[i]}</label>
-                  <span class="item-separator">&nbsp;</span>
+                  <span className="item-separator">&nbsp;</span>
                 </span>
                 elements[i] =  _elements
               }
@@ -540,7 +540,7 @@ class PostForm extends Component {
                     onChange={(e)=>this.handleRadioChange(e)}
                     defaultChecked={this.state[attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")]} />
                   <label htmlFor={attribute.key + "_" + attribute.options[ij].replace(/ /gi,"_")}>{attribute.options[ij]}</label>
-                  <span class="item-separator">&nbsp;</span>
+                  <span className="item-separator">&nbsp;</span>
                 </span>
 
                 elements.push(_elements)
