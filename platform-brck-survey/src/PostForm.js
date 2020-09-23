@@ -6,7 +6,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import './FormStyles.css'
 
-function PostForm({post}) {
+function PostForm({post, language}) {
+
   const handleInputChange = (event) => {
     let fieldId = event.target.attributes.name.value;
     let value = event.target.value;
@@ -77,9 +78,9 @@ function PostForm({post}) {
             onChange = setValue;
           } else if (field.type === 'point' && field.input === 'location') {
             onChange = setValue;
-            return <PostMap key={j} field={field} onChange={onChange.bind(this)} />
+            return <PostMap key={j} field={field} onChange={onChange.bind(this)} language={language} />
           }
-          return <PostField key={j} field={field} onChange={onChange.bind(this)} />
+          return <PostField key={j} field={field} onChange={onChange.bind(this)} language={language} />
         });
       });
     }

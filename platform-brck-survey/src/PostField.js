@@ -1,13 +1,12 @@
 import React, {useState} from 'react';
 import DatePicker from 'react-datepicker'
 
-function PostField({field, onChange, ...props}) {
+function PostField({field, onChange, language, ...props}) {
 	const [date, setDate] = useState(Date.now());
 	const handleDate = (date) => {
 		setDate(date)
 		onChange(date, field.id);
 	}
-
 	const getField = () => {
 		switch (field.input) {
 			case "textarea":
@@ -32,13 +31,17 @@ function PostField({field, onChange, ...props}) {
 									id={`${field.id}_${ij}`}
 									name={field.id}
 									type={field.input === 'checkbox' ? 'checkbox' : 'radio'}
-									value={field.options[ij]}
+									value={field.input === "tags" ? field.options[ij].id : field.options[ij]}
 									checked={props.checked && props.checked.indexOf(field.options[ij]) > -1}
 									required={field.required}
 									onChange={e => onChange(e)}
 								/> 
-								{field.input === "tags" ? field.options[ij].tag : field.options[ij]} 
-							</label>
+
+								{field.input === "tags" ?
+									(field.options[ij].translations[language] && field.options[ij].translations[language].tag ? field.options[ij].translations[language].tag : field.options[ij].tag) :
+									(field.translations[language] && field.translations[language].options && field.translations[language].options[ij] ? field.translations[language].options[ij] : field.options[ij])
+								}
+							</label> 
 							<span className="item-separator" > & nbsp; </span>
 						</span>);
 					
@@ -46,12 +49,11 @@ function PostField({field, onChange, ...props}) {
 				}
 
 				return elements;
-
 			case "select":
 				let options = []
 				for (var jk = 0; jk < field.options.length; jk++) {
 					let option = <option key={jk} value={field.options[jk]}> 
-					{field.options[jk]} 
+					{field.translations[language] && field.translations[language].options && field.translations[language].options[jk] ? field.translations[language].options[jk] : field.options[jk]} 
 					</option>
 
 					options[jk] = option;
@@ -101,12 +103,12 @@ function PostField({field, onChange, ...props}) {
 			<div> 
 				<label htmlFor={field.id}>
 					<strong> 
-						{field.label} 
+						{field.translations[language] && field.translations[language].label ? field.translations[language].label : field.label} 
 					</strong>
 				</label>
 				<em>
 					<small> 
-						{field.instructions} 
+					{field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions} 
 					</small>
 				</em>
 			</div>
