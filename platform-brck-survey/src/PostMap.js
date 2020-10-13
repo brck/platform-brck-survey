@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import Map from 'react-js-google-maps';
 
-function PostMap ({field, onChange}) {
+function PostMap ({field, onChange, language}) {
   const mapOptions = {zoom: 10, center: { lat: -1.35, lng: 36.7 }};
   const [markers, setMarker] = useState([]);
   const initMap = (map, ref) => {
     setMapOnAll(map);
     map.addListener('click', async (e) => {
       let lat = e.latLng.lat();
-      let lng = e.latLng.lng();
+      let lon = e.latLng.lng();
       const newMarker = new window.google.maps.Marker({
         position: e.latLng,
         map: map,
         ref: ref
       });
       setMarker([newMarker]);
-      onChange({lat, lng}, field.id);
+      onChange(field.id, {lat, lon});
       return false;
-    });
-  }
+    })
+  };
 
   const setMapOnAll = (map) => {  
     for (var i = 0; i < markers.length; i++) {
@@ -30,10 +30,10 @@ function PostMap ({field, onChange}) {
   return (
     <div key={field.id} className="medium-12 columns">
         <label htmlFor={field.id}>
-          <strong>{field.label}</strong>
+          <strong>{field.translations[language] && field.translations[language].label ? field.translations[language].label : field.label}</strong>
         </label>
         <em>
-          <small>{field.instructions}</small>
+          <small>{field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions} </small>
         </em>
         <div id={field.label} className="map">
             <Map
@@ -47,4 +47,4 @@ function PostMap ({field, onChange}) {
     </div>
   );
 }
-export default PostMap;
+export default React.memo(PostMap);

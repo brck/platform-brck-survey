@@ -30,13 +30,13 @@ function PostField({field, onChange, language, ...props}) {
 								<input 
 									id={`${field.id}_${ij}`}
 									name={field.id}
-									type={field.input === 'checkbox' ? 'checkbox' : 'radio'}
+									type={field.input === 'radio' ? 'radio' : 'checkbox'}
 									value={field.input === "tags" ? field.options[ij].id : field.options[ij]}
 									checked={props.checked && props.checked.indexOf(field.options[ij]) > -1}
 									required={field.required}
 									onChange={e => onChange(e)}
 								/> 
-
+								{field.input === "tags" ? field.options[ij].id : field.options[ij]}
 								{field.input === "tags" ?
 									(field.options[ij].translations[language] && field.options[ij].translations[language].tag ? field.options[ij].translations[language].tag : field.options[ij].tag) :
 									(field.translations[language] && field.translations[language].options && field.translations[language].options[ij] ? field.translations[language].options[ij] : field.options[ij])
@@ -116,4 +116,4 @@ function PostField({field, onChange, language, ...props}) {
 		</div>);
 }
 
-export default PostField;
+export default React.memo(PostField);
