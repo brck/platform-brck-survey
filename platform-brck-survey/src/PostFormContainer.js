@@ -49,6 +49,12 @@ const reducer = (state, action) => {
           ...initialState,
           post: action.payload
         }
+
+        case 'VALIDATION_ERROR':
+          return {
+            ...state,
+            isNotValid: action.payload
+          }
     default:
       return state;
   }
@@ -74,10 +80,14 @@ function PostFormContainer(props) {
 
   const handleSubmit = (e, value) => {
     e.preventDefault();
+    dispatch({type: 'VALIDATION_ERROR', payload:false});
     let newPost = state.post;
     newPost.post_content.forEach(task => {
       task.fields.forEach(field => {
-        if(value[field.id]) {
+        if(field.required && !value[field.id].value) {
+          dispatch({type: 'VALIDATION_ERROR', payload: true});
+        } else {
+          if(value[field.id]) {
           if (field.type === 'title' || field.type === 'description') {
             const fieldType = field.type === 'title' ? 'title' : 'content';
             newPost[fieldType] = value[field.id];
@@ -87,11 +97,24 @@ function PostFormContainer(props) {
             field.value.value = value[field.id];
           }
         }
+      }
       })})
-      api.savePost(state.post).then(response => {
-        dispatch({type: 'UPDATE_POST', payload: response.data.result});
-      });
+      if(!state.errors) {
+        api.savePost(newPost).then(response => {
+          dispatch({type: 'UPDATE_POST', payload: response.data.result});
+          dispatch({type: 'VALIDATION_ERROR', payload: false});
+        });
+      } else {
+        dispatch({type: 'VALIDATION_ERROR', payload: true});
+      }
   }
+
+  useEffect(() => {
+    if(state.isNotValid) {
+      const list = document.getElementsByClassName("error");
+      list[0].scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [state.isNotValid]);
 
   const handleLanguageSelect = e =>{
     let selected = e.target.options.selectedIndex;
@@ -109,8 +132,7 @@ function PostFormContainer(props) {
                   {languageOptions.length > 1 ? 
                     <LanguageSwitch onChange={e => handleLanguageSelect(e)} languages={languageOptions} />
                     :''}
-                  <PostForm post={state.post} language={state.language} handleSubmit={handleSubmit}/>
-
+                  <PostForm post={state.post} isNotValid={state.isNotValid} language={state.language} handleSubmit={handleSubmit}/>
               </div>
         </div>)
   } else if(state.post && state.post.id > 0) {

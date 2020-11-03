@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
 import DatePicker from 'react-datepicker'
 
-function PostField({field, onChange, language, ...props}) {
+function PostField({field, onChange, language, isNotValid, ...props}) {
 	const [date, setDate] = useState(Date.now());
+
 	const handleDate = (date) => {
 		setDate(date)
 		onChange(date, field.id);
@@ -100,19 +101,20 @@ function PostField({field, onChange, language, ...props}) {
 
 	return ( 
 		<div className="medium-12 columns">
-			<div> 
+			<div className={`${isNotValid ? "error" : ''}`}>
 				<label htmlFor={field.id}>
 					<strong> 
 						{field.translations[language] && field.translations[language].label ? field.translations[language].label : field.label} 
 					</strong>
+					{isNotValid ? <p>this field is required</p>: ''}
+
 				</label>
 				<em>
-					<small> 
+					<small>
 					{field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions} 
 					</small>
 				</em>
 			</div>
-			{getField()}
 		</div>);
 }
 

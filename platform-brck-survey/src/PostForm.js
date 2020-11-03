@@ -7,8 +7,18 @@ import './App.css';
 import './FormStyles.css'
 
 function PostForm({post, language, handleSubmit}) {
-  const [value, setValue] = useState({});
-
+  const generateInitialState = () => {
+    const initialPostState = {};
+    post.post_content.forEach(tasks => {
+      tasks.fields.forEach(field => {
+        initialPostState[field.id] = {
+          required: field.required
+        }
+      });
+    });
+    return initialPostState;
+  }
+  const [value, setValue] = useState(generateInitialState());
   const handleInputChange = useCallback((event) => {
     let fieldId = event.target.attributes.name.value;
     let value = event.target.value;
@@ -65,6 +75,7 @@ function PostForm({post, language, handleSubmit}) {
       return post.post_content.map((task, i) => {
         return task.fields.map((field, j) => {
           let onChange = handleInputChange;
+          let validField = isNotValid && field.required && !value[field.id].value;
           field.value = {};
           if (field.input === 'tags' || field.input === 'checkbox' || field.input === 'radio') {
             onChange = handleOptionsChange;
@@ -74,9 +85,9 @@ function PostForm({post, language, handleSubmit}) {
             onChange = setFieldValue;
           } else if (field.type === 'point' && field.input === 'location') {
             onChange = setMapValue;
-            return <PostMap key='map' field={field} onChange={onChange} language={language} />
+            return <PostMap key='map' isNotValid={validField} field={field} onChange={onChange} language={language} />
           }
-          return <PostField key={j} field={field} onChange={onChange} language={language} />
+          return <PostField key={j} field={field} isNotValid={validField} onChange={onChange} language={language} />
         });
       });
     }
