@@ -2,12 +2,13 @@ import React, {useState} from 'react';
 import DatePicker from 'react-datepicker'
 
 function PostField({field, onChange, language, isNotValid, ...props}) {
-	const [date, setDate] = useState(Date.now());
+	const [date, setDate] = useState(null);
 
 	const handleDate = (date) => {
 		setDate(date)
-		onChange(date, field.id);
+		onChange(field.id, date);
 	}
+
 	const getField = () => {
 		switch (field.input) {
 			case "textarea":
@@ -79,7 +80,6 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 						type={field.input}
 						required={field.required}
 						selected={date}
-						onChange={datetime => onChange(datetime, field.id)}
 						onSelect={date => handleDate(date, field.id)}
 						showTimeSelect={field.input === "datetime" ? true : false}
 						dateFormat={field.input === "datetime" ? "MMM dd, yyyy HH:mm" : "MMM dd, yyyy"}
