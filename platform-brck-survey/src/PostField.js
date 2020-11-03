@@ -26,6 +26,21 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 			case "checkbox":
 				let elements = [];
 				for (var ij = 0; ij < field.options.length; ij++) {
+					let label = '';
+					if(field.input === "tags") {
+						label = 
+						field.options[ij].translations[language] &&
+						field.options[ij].translations[language].tag
+						  ? field.options[ij].translations[language].tag
+						  : field.options[ij].tag;
+					} else {
+					  label = 
+						field.translations[language] &&
+						field.translations[language].options &&
+						field.translations[language].options[ij]
+						  ? field.translations[language].options[ij]
+						  : field.options[ij];
+					}
 					let element = (
 						<span key = {ij}>
 							<label htmlFor = {`${field.id}_${ij}`} >
@@ -38,12 +53,8 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 									required={field.required}
 									onChange={e => onChange(e)}
 								/> 
-								{field.input === "tags" ? field.options[ij].id : field.options[ij]}
-								{field.input === "tags" ?
-									(field.options[ij].translations[language] && field.options[ij].translations[language].tag ? field.options[ij].translations[language].tag : field.options[ij].tag) :
-									(field.translations[language] && field.translations[language].options && field.translations[language].options[ij] ? field.translations[language].options[ij] : field.options[ij])
-								}
-							</label> 
+								{label}
+							</label>
 							<span className="item-separator" > & nbsp; </span>
 						</span>);
 					
@@ -91,8 +102,7 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 						id={field.id}
 						name={field.id}
 						type={field.label === "User ID" ? "hidden" : field.input}
-						value={field.value.value}
-						required={field.required}
+						value={field.value.values}
 						onChange={e => onChange(e)}
 					/>
 				);
@@ -114,6 +124,7 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 					{field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions} 
 					</small>
 				</em>
+			{getField()}
 			</div>
 		</div>);
 }
