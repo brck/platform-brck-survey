@@ -10,16 +10,16 @@ function LanguageSwitch({languages, onChange}) {
 	});
 	return (
 		<div className="medium-12 columns">
-				<div> 
-						<label htmlFor='languageSwitch'>
-								<strong> 
-										Select language to view and reply in
-								</strong>
-						</label>
-				</div>
-				<select onChange={e => onChange(e)}>
-						{languageOptions.map((lang, index) => <option key={index} value={lang.code}>{lang.name}</option>)}
-				</select>
+			<div>
+				<label htmlFor='languageSwitch'>
+					<strong>
+						Select language to view and reply in
+					</strong>
+				</label>
+			</div>
+			<select onChange={e => onChange(e)}>
+					{languageOptions.map((lang, index) => <option key={index} value={lang.code}>{lang.name}</option>)}
+			</select>
 		</div>
 	);
 }
