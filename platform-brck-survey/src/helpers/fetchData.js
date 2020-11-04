@@ -1,6 +1,6 @@
 import * as UshSdk from 'ushahidi-platform-sdk';
 
-const apiPrefix = process.env.API_SCHEME || 'http://';
+const apiPrefix = process.env.API_SCHEME || 'https://';
 const baseUrl = process.env.REACT_APP_API_BASEURL || 'api.ushahidi.io';
 
 let formId = 0
