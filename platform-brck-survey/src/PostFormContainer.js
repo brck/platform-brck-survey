@@ -89,32 +89,41 @@ function PostFormContainer(props) {
   const handleSubmit = (e, value) => {
     e.preventDefault();
     dispatch({type: 'VALIDATION_ERROR', payload:false});
-    let newPost = state.post;
-    newPost.post_content.forEach(task => {
-      task.fields.forEach(field => {
-        if(field.required && !value[field.id].value) {
-          dispatch({type: 'VALIDATION_ERROR', payload: true});
-        } else {
-          if(value[field.id]) {
-          if (field.type === 'title' || field.type === 'description') {
-            const fieldType = field.type === 'title' ? 'title' : 'content';
-            newPost[fieldType] = value[field.id];
-          } else if(field.type === 'tag') {
-            field.value.value = value[field.id].map(tag=>parseInt(tag));
-          } else {
-            field.value.value = value[field.id];
+    let newPost = matchPostValues(value);
+    if(!state.errors) {
+      api.savePost(newPost).then(response => {
+        dispatch({type: 'UPDATE_POST', payload: response.data.result});
+        dispatch({type: 'VALIDATION_ERROR', payload: false});
+      });
+    } else {
+      dispatch({type: 'VALIDATION_ERROR', payload: true});
+    }
+  }
+  const matchPostValues = (value) => {
+    let newPost = {...state.post};
+    newPost.post_content = state.post.post_content.map(task => {
+      let fields = task.fields.map(field => {
+            if(field.required && !value[field.id].value) {
+              dispatch({type: 'VALIDATION_ERROR', payload: true});
+            } else {
+          if(value[field.id].value) {
+            if (field.type === 'title' || field.type === 'description') {
+              const fieldType = field.type === 'title' ? 'title' : 'content';
+              newPost[fieldType] = value[field.id].value;    
+            } else if(field.type === 'tags') {
+              let fieldValue = value[field.id].value.map(tag=>parseInt(tag));
+              return {...field, value: {value: fieldValue}}
+            } else {
+              let fieldValue = value[field.id].value;
+              return {...field, value: {value: fieldValue}}
+            }
           }
         }
-      }
-      })})
-      if(!state.errors) {
-        api.savePost(newPost).then(response => {
-          dispatch({type: 'UPDATE_POST', payload: response.data.result});
-          dispatch({type: 'VALIDATION_ERROR', payload: false});
-        });
-      } else {
-        dispatch({type: 'VALIDATION_ERROR', payload: true});
-      }
+        return field;
+      });
+      return {...task, fields};
+    });
+    return newPost;
   }
 
   useEffect(() => {
@@ -124,7 +133,7 @@ function PostFormContainer(props) {
     }
   }, [state.isNotValid]);
 
-  const handleLanguageSelect = e =>{
+  const handleLanguageSelect = e => {
     let selected = e.target.options.selectedIndex;
     let value = e.target.options[selected].value;  
     dispatch({type:'SET_LANGUAGE', payload: value});
