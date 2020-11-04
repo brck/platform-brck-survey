@@ -139,26 +139,37 @@ function PostFormContainer(props) {
     dispatch({type:'SET_LANGUAGE', payload: value});
   }
 
+  // Rendering
   if(state.form && state.form.tasks) {
-    const languageOptions = [state.form.enabled_languages.default, ...state.form.enabled_languages.available];
-    return (
-        <div>
-          <h1>{state.form.name}</h1>
-            <div className="large-12 columns">
-              
-                  {languageOptions.length > 1 ? 
-                    <LanguageSwitch onChange={e => handleLanguageSelect(e)} languages={languageOptions} />
-                    :''}
-                  <PostForm post={state.post} isNotValid={state.isNotValid} language={state.language} handleSubmit={handleSubmit}/>
-              </div>
-        </div>)
-  } else if(state.post && state.post.id > 0) {
-    return <h1> Thank you for your submission!</h1>
+    // Rendering form
+    if(state.post && state.post.id === 0) {
+      const languageOptions = [state.form.enabled_languages.default, ...state.form.enabled_languages.available];
+      return (
+          <div>
+            <h1>{state.form.name}</h1>
+              <div className="large-12 columns">          
+                    {languageOptions.length > 1 ? 
+                      <LanguageSwitch
+                        onChange={e => handleLanguageSelect(e)}
+                        languages={languageOptions}
+                      />
+                      :''}
+                      <PostForm
+                        post={state.post}
+                        isNotValid={state.isNotValid}
+                        language={state.language}
+                        handleSubmit={handleSubmit}
+                      />
+                </div>
+          </div>
+          );
+    } else {
+      // Rendering thank-you note
+      return <h1> Thank you for your submission!</h1>
+    }
   } else {
-      return (<div>
-          {state.loading ? <h1>Loading</h1>:''}
-          <h1>{state.error}</h1>
-      </div>);
+  // We are fetching the form
+    return <div>{state.loading ? <h1>Loading</h1>:''}</div>;
   }
 }
 

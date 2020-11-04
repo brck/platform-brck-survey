@@ -6,7 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import './FormStyles.css'
 
-function PostForm({post, language, handleSubmit}) {
+function PostForm({post, language, handleSubmit, isNotValid}) {
   const generateInitialState = () => {
     const initialPostState = {};
     post.post_content.forEach(tasks => {
@@ -19,23 +19,20 @@ function PostForm({post, language, handleSubmit}) {
     return initialPostState;
   }
   const [value, setValue] = useState(generateInitialState());
-  const handleInputChange = useCallback((event) => {
+  const handleInputChange = (event) => {
     let fieldId = event.target.attributes.name.value;
     let value = event.target.value;
     setFieldValue(fieldId, value);
-    event.preventDefault();
-  }, [value]);
+  };
 
   const handleOptionsChange = (event) => {
-    event.preventDefault();
-
     let fieldId = event.target.attributes.name.value;
     let fieldValue = event.target.attributes.value.value;
-    if (event.target.attributes.type.value === 'checkbox') {
 
+    if (event.target.attributes.type.value === 'checkbox') {
       // if we have a checkbox, we need to check if the value is there already or not.
       // 1. find the field
-        let selectedValues = value[fieldId];
+        let selectedValues = value[fieldId] && value[fieldId].value ? value[fieldId].value : null;
       // 2. Check if we need to create the field-value, or add or remove the value 
             if (!selectedValues || selectedValues.length < 1) {
               selectedValues = [fieldValue];
@@ -44,11 +41,10 @@ function PostForm({post, language, handleSubmit}) {
             } else {
               selectedValues.splice(selectedValues.indexOf(fieldValue), 1);
             }
-            
             setFieldValue(fieldId, selectedValues);
         } else {
       // for radio-buttons we just need to worry about one value at the time
-      setFieldValue(fieldId, value);
+      setFieldValue(fieldId, fieldValue);
     }
   }
 
@@ -57,8 +53,8 @@ function PostForm({post, language, handleSubmit}) {
     let value = event.target.options[selected].value;
     let fieldId = event.target.attributes.name.value;
     setFieldValue(fieldId, value);
-    event.preventDefault();
   }
+
   // Using useCallback to prevent re-rendering of the map each time state changes
   const setMapValue = useCallback((fieldId, fieldValue) => {
     setFieldValue(fieldId, fieldValue);
@@ -66,7 +62,7 @@ function PostForm({post, language, handleSubmit}) {
 
   const setFieldValue = (fieldId, fieldValue) => {
     let newFieldValue = {};
-    newFieldValue[fieldId] = fieldValue;
+    newFieldValue[fieldId] = {...value[fieldId], value: fieldValue};
     setValue({...value, ...newFieldValue});
   };
 
@@ -101,10 +97,11 @@ function PostForm({post, language, handleSubmit}) {
       noValidate=""
     >
       {getStructure()}
-      <button
-        className="button expanded">
+      <div className="medium-12 columns">
+        <button className="button expanded">
           Submit
-      </button>
+        </button>
+      </div>
     </form>
   );
 }
