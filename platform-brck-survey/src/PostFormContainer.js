@@ -17,7 +17,8 @@ const initialState = {
   },
   language: '',
   error: '',
-  loading: true
+  loading: true,
+  isNotValid: false
 };
 
 const reducer = (state, action) => {
@@ -27,26 +28,32 @@ const reducer = (state, action) => {
       newPost.post_content = action.payload.tasks;
       newPost.form_id = action.payload.id;
       return {
+        ...state,
         form: action.payload,
         post: newPost,
         error: '',
         language: action.payload.enabled_languages.default,
         loading: false
       };
+
     case 'FETCH_ERROR':
       return {
-        ...initialState,
+        ...state,
         error: 'Something went wrong!',
         loading: false
       };
+
     case 'SET_LANGUAGE':
+      let post = {...state.post, base_language: action.payload}
       return {
         ...state,
+        post,
         language: action.payload
       }
+
       case 'UPDATE_POST':
         return {
-          ...initialState,
+          ...state,
           post: action.payload
         }
 
@@ -55,6 +62,7 @@ const reducer = (state, action) => {
             ...state,
             isNotValid: action.payload
           }
+
     default:
       return state;
   }
