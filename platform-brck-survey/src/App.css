@@ -26,11 +26,24 @@ span {
   display: inline;
 }
 
+.error {
+  margin: 5px 0;
+  padding: 10px;
+  border:1px solid lightcoral;
+}
+.error p {
+  color: lightcoral;
+}
 .react-datepicker-wrapper, .react-datepicker__input-container {
   display: block;
 }
-
+.button {
+  margin-top: 20px;
+}
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+label >* {
+  pointer-events:none;
 }
