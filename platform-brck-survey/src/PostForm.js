@@ -1,6 +1,7 @@
 import React, {useState, useCallback} from 'react';
 import PostField from './PostField';
 import PostMap from './PostMap';
+import sortby from 'lodash.sortby';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
@@ -69,6 +70,10 @@ function PostForm({post, language, handleSubmit, isNotValid}) {
   const getStructure = () => {
     if (post && post.post_content) {
       return post.post_content.map((task, i) => {
+        // sorting the fields by priority  
+        task.fields = sortby(task.fields, function(field) {
+            return field.priority;
+          });
         return task.fields.map((field, j) => {
           let onChange = handleInputChange;
           let validField = isNotValid && field.required && !value[field.id].value;
