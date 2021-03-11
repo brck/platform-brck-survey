@@ -2,6 +2,7 @@ import React, {useEffect, useReducer } from 'react';
 import * as api from './helpers/fetchData';
 import PostForm from './PostForm';
 import LanguageSwitch from './LanguageSwitch';
+import sample from 'lodash.sample';
 
 const initialState = {
   form: {},
@@ -21,6 +22,9 @@ const initialState = {
   isNotValid: false
 };
 
+const redirectUrls = process.env.REACT_APP_REDIRECT_URLS ?  process.env.REACT_APP_REDIRECT_URLS.split(",") : [];
+const redirectForms = process.env.REACT_APP_FORM_IDS_REDIRECT ? process.env.REACT_APP_FORM_IDS_REDIRECT.split(",") : [];
+  
 const reducer = (state, action) => {
   switch(action.type) {
     case 'FETCH_SUCCESS':
@@ -92,13 +96,18 @@ function PostFormContainer(props) {
     let newPost = matchPostValues(value);
     if(!state.errors) {
       api.savePost(newPost).then(response => {
+        if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
+          window.location.href = sample(redirectUrls);
+        } else {
         dispatch({type: 'UPDATE_POST', payload: response.data.result});
         dispatch({type: 'VALIDATION_ERROR', payload: false});
+        }
       });
     } else {
       dispatch({type: 'VALIDATION_ERROR', payload: true});
     }
   }
+
   const matchPostValues = (value) => {
     let newPost = {...state.post};
     newPost.post_content = state.post.post_content.map(task => {
@@ -137,7 +146,7 @@ function PostFormContainer(props) {
     let selected = e.target.options.selectedIndex;
     let value = e.target.options[selected].value;  
     dispatch({type:'SET_LANGUAGE', payload: value});
-  }
+  };
 
   // Rendering
   if(state.form && state.form.tasks) {
