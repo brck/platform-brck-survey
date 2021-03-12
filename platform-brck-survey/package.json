@@ -5,6 +5,7 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
+    "lodash.sample": "^4.2.1",
     "lodash.sortby": "^4.7.0",
     "query-string": "^6.2.0",
     "react": "^16.13.1",
