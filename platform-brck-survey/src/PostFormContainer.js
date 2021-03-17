@@ -37,7 +37,8 @@ const reducer = (state, action) => {
         post: newPost,
         error: '',
         language: action.payload.enabled_languages.default,
-        loading: false
+        loading: false,
+        submitting: false
       };
 
     case 'FETCH_ERROR':
@@ -65,6 +66,11 @@ const reducer = (state, action) => {
           return {
             ...state,
             isNotValid: action.payload
+          }
+        case 'SUBMITTING':
+          return {
+            ...state,
+            updating: action.payload
           }
 
     default:
@@ -95,16 +101,21 @@ function PostFormContainer(props) {
     dispatch({type: 'VALIDATION_ERROR', payload:false});
     let newPost = matchPostValues(value);
     if(!state.errors) {
-      api.savePost(newPost).then(response => {
-        if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
-          window.location.href = sample(redirectUrls);
-        } else {
-        dispatch({type: 'UPDATE_POST', payload: response.data.result});
-        dispatch({type: 'VALIDATION_ERROR', payload: false});
-        }
-      });
+      if(!state.submitting) {
+        dispatch({type: 'SUBMITTING', payload:true});
+        api.savePost(newPost).then(response => {
+          if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
+            window.location.href = sample(redirectUrls);
+          } else {
+          dispatch({type: 'UPDATE_POST', payload: response.data.result});
+          dispatch({type: 'VALIDATION_ERROR', payload: false});
+          dispatch({type: 'SUBMITTING', payload: false})
+          }
+        });
+      }
     } else {
       dispatch({type: 'VALIDATION_ERROR', payload: true});
+      dispatch({type: 'SUBMITTING', payload: false})
     }
   }
 
@@ -168,6 +179,7 @@ function PostFormContainer(props) {
                         isNotValid={state.isNotValid}
                         language={state.language}
                         handleSubmit={handleSubmit}
+                        submitting={state.updating}
                       />
                 </div>
           </div>

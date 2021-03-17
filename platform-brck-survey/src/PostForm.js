@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import './FormStyles.css'
 
-function PostForm({post, language, handleSubmit, isNotValid}) {
+function PostForm({post, language, handleSubmit, isNotValid, submitting}) {
   const generateInitialState = () => {
     const initialPostState = {};
     post.post_content.forEach(tasks => {
@@ -103,7 +103,7 @@ function PostForm({post, language, handleSubmit, isNotValid}) {
     >
       {getStructure()}
       <div className="medium-12 columns">
-        <button className="button expanded">
+        <button disabled={submitting} className="button expanded">
           Submit
         </button>
       </div>
