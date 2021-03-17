@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
-import DatePicker from 'react-datepicker'
+import DatePicker from 'react-datepicker';
+import ReactMarkdown from "react-markdown";
+
 
 function PostField({field, onChange, language, isNotValid, ...props}) {
 	const [date, setDate] = useState(null);
@@ -7,6 +9,11 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 	const handleDate = (date) => {
 		setDate(date)
 		onChange(field.id, date);
+	}
+
+	const getInstructions = () => {
+		let instructions = field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions;
+		return <ReactMarkdown skipHtml="true" source={instructions} />;
 	}
 
 	const getField = () => {
@@ -121,7 +128,7 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 				</label>
 				<em>
 					<small>
-					{field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions} 
+						{getInstructions()}					
 					</small>
 				</em>
 			{getField()}
