@@ -13,7 +13,7 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 
 	const getInstructions = () => {
 		let instructions = field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions;
-		return <ReactMarkdown skipHtml="true" source={instructions} />;
+		return <ReactMarkdown skipHtml={true} source={instructions} />;
 	}
 
 	const getField = () => {
