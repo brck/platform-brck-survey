@@ -70,7 +70,7 @@ const reducer = (state, action) => {
         case 'SUBMITTING':
           return {
             ...state,
-            updating: action.payload
+            submitting: action.payload
           }
 
     default:
@@ -179,7 +179,7 @@ function PostFormContainer(props) {
                         isNotValid={state.isNotValid}
                         language={state.language}
                         handleSubmit={handleSubmit}
-                        submitting={state.updating}
+                        submitting={state.submitting}
                       />
                 </div>
           </div>
