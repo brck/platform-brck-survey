@@ -159,6 +159,17 @@ function PostFormContainer(props) {
     dispatch({type:'SET_LANGUAGE', payload: value});
   };
 
+  const getThankYouPage = () => {
+    if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
+      setTimeout(function() {
+        window.location.href = sample(redirectUrls);
+      },2000);
+      return <strong>Thank you for your submission, you are now being directed to Facebook! </strong>;
+    } else {
+      return <strong> Thank you for your submission!</strong>
+    }
+  }
+
   // Rendering
   if(state.form && state.form.tasks) {
     // Rendering form
@@ -184,10 +195,10 @@ function PostFormContainer(props) {
                 </div>
           </div>
           );
-    } else {
+      } else {
       // Rendering thank-you note
-      return <h1> Thank you for your submission!</h1>
-    }
+      return getThankYouPage();
+      } 
   } else {
   // We are fetching the form
     return <div>{state.loading ? <h1>Loading</h1>:''}</div>;
