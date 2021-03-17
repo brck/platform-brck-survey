@@ -104,13 +104,11 @@ function PostFormContainer(props) {
       if(!state.submitting) {
         dispatch({type: 'SUBMITTING', payload:true});
         api.savePost(newPost).then(response => {
-          if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
-            window.location.href = sample(redirectUrls);
-          } else {
           dispatch({type: 'UPDATE_POST', payload: response.data.result});
           dispatch({type: 'VALIDATION_ERROR', payload: false});
           dispatch({type: 'SUBMITTING', payload: false})
-          }
+        }, err => {
+          dispatch({type: 'SUBMITTING', payload: false});
         });
       }
     } else {
@@ -123,13 +121,14 @@ function PostFormContainer(props) {
     let newPost = {...state.post};
     newPost.post_content = state.post.post_content.map(task => {
       let fields = task.fields.map(field => {
-            if(field.required && !value[field.id].value) {
+        let canBeBlank = field.type === 'title' || field.type === 'description';
+          if(field.required && !value[field.id].value && !canBeBlank) {
               dispatch({type: 'VALIDATION_ERROR', payload: true});
             } else {
-          if(value[field.id].value) {
-            if (field.type === 'title' || field.type === 'description') {
+          if(value[field.id].value || canBeBlank) {
+            if (canBeBlank) {
               const fieldType = field.type === 'title' ? 'title' : 'content';
-              newPost[fieldType] = value[field.id].value;    
+              newPost[fieldType] = field.default ? field.default : field.label;
             } else if(field.type === 'tags') {
               let fieldValue = value[field.id].value.map(tag=>parseInt(tag));
               return {...field, value: {value: fieldValue}}

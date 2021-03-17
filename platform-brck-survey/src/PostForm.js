@@ -84,10 +84,12 @@ function PostForm({post, language, handleSubmit, isNotValid, submitting}) {
             onChange = handleSelectChange;
           } else if (field.type === 'datetime') {
             onChange = setFieldValue;
+          } else if(field.type === 'title' || field.type === 'description') {
+            validField = false;
           } else if (field.type === 'point' && field.input === 'location') {
             onChange = setMapValue;
             return <PostMap key='map' isNotValid={validField} field={field} onChange={onChange} language={language} />
-          }
+          } 
           return <PostField key={j} field={field} isNotValid={validField} onChange={onChange} language={language} />
         });
       });
