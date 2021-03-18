@@ -47,3 +47,6 @@ span {
 label >* {
   pointer-events:none;
 }
+.noInput {
+  padding-bottom: 10px;
+}

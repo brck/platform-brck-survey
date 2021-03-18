@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
-import DatePicker from 'react-datepicker'
+import DatePicker from 'react-datepicker';
+import ReactMarkdown from "react-markdown";
+
 
 function PostField({field, onChange, language, isNotValid, ...props}) {
 	const [date, setDate] = useState(null);
@@ -7,6 +9,11 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 	const handleDate = (date) => {
 		setDate(date)
 		onChange(field.id, date);
+	}
+
+	const getInstructions = () => {
+		let instructions = field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions;
+		return <ReactMarkdown skipHtml={true} source={instructions} />;
 	}
 
 	const getField = () => {
@@ -97,6 +104,9 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 					/>
 				);
 			default:
+				if(field.type === 'title' || field.type === 'description') {
+					return '';
+				}
 				return ( 
 					<input 
 						id={field.id}
@@ -108,23 +118,33 @@ function PostField({field, onChange, language, isNotValid, ...props}) {
 				);
 			}
 		}
+		
+		const getLabel = () => {
+			let label = field.translations[language] && field.translations[language].label ? field.translations[language].label : field.label;
+			let isNoInput = field.type === "title" || field.type === "description";
+			if(isNoInput) {
+				if(field.default) {
+					label = field.translations[language]&& field.translations[language].default ? field.translations[language].default : field.default;
+				}
+			}
+			return <label htmlFor={field.id} className={`${isNoInput? 'noInput' : ''}`}>
+						<strong>
+							{label} 
+					</strong>
+					{isNotValid ? <p>this field is required</p>: ''}
+					</label>
+		}
 
 	return ( 
 		<div className="medium-12 columns">
 			<div className={`${isNotValid ? "error" : ''}`}>
-				<label htmlFor={field.id}>
-					<strong> 
-						{field.translations[language] && field.translations[language].label ? field.translations[language].label : field.label} 
-					</strong>
-					{isNotValid ? <p>this field is required</p>: ''}
-
-				</label>
+				{getLabel()}
 				<em>
 					<small>
-					{field.translations[language] && field.translations[language].instructions ? field.translations[language].instructions : field.instructions} 
+						{getInstructions()}					
 					</small>
 				</em>
-			{getField()}
+				{getField()}
 			</div>
 		</div>);
 }

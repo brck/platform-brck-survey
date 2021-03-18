@@ -37,7 +37,8 @@ const reducer = (state, action) => {
         post: newPost,
         error: '',
         language: action.payload.enabled_languages.default,
-        loading: false
+        loading: false,
+        submitting: false
       };
 
     case 'FETCH_ERROR':
@@ -65,6 +66,11 @@ const reducer = (state, action) => {
           return {
             ...state,
             isNotValid: action.payload
+          }
+        case 'SUBMITTING':
+          return {
+            ...state,
+            submitting: action.payload
           }
 
     default:
@@ -95,16 +101,19 @@ function PostFormContainer(props) {
     dispatch({type: 'VALIDATION_ERROR', payload:false});
     let newPost = matchPostValues(value);
     if(!state.errors) {
-      api.savePost(newPost).then(response => {
-        if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
-          window.location.href = sample(redirectUrls);
-        } else {
-        dispatch({type: 'UPDATE_POST', payload: response.data.result});
-        dispatch({type: 'VALIDATION_ERROR', payload: false});
-        }
-      });
+      if(!state.submitting) {
+        dispatch({type: 'SUBMITTING', payload:true});
+        api.savePost(newPost).then(response => {
+          dispatch({type: 'UPDATE_POST', payload: response.data.result});
+          dispatch({type: 'VALIDATION_ERROR', payload: false});
+          dispatch({type: 'SUBMITTING', payload: false})
+        }, err => {
+          dispatch({type: 'SUBMITTING', payload: false});
+        });
+      }
     } else {
       dispatch({type: 'VALIDATION_ERROR', payload: true});
+      dispatch({type: 'SUBMITTING', payload: false})
     }
   }
 
@@ -112,13 +121,14 @@ function PostFormContainer(props) {
     let newPost = {...state.post};
     newPost.post_content = state.post.post_content.map(task => {
       let fields = task.fields.map(field => {
-            if(field.required && !value[field.id].value) {
+        let canBeBlank = field.type === 'title' || field.type === 'description';
+          if(field.required && !value[field.id].value && !canBeBlank) {
               dispatch({type: 'VALIDATION_ERROR', payload: true});
             } else {
-          if(value[field.id].value) {
-            if (field.type === 'title' || field.type === 'description') {
+          if(value[field.id].value || canBeBlank) {
+            if (canBeBlank) {
               const fieldType = field.type === 'title' ? 'title' : 'content';
-              newPost[fieldType] = value[field.id].value;    
+              newPost[fieldType] = field.default ? field.default : field.label;
             } else if(field.type === 'tags') {
               let fieldValue = value[field.id].value.map(tag=>parseInt(tag));
               return {...field, value: {value: fieldValue}}
@@ -148,6 +158,17 @@ function PostFormContainer(props) {
     dispatch({type:'SET_LANGUAGE', payload: value});
   };
 
+  const getThankYouPage = () => {
+    if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
+      setTimeout(function() {
+        window.location.href = sample(redirectUrls);
+      },2000);
+      return <strong>Thank you for your submission, you are now being directed to Facebook! </strong>;
+    } else {
+      return <strong> Thank you for your submission!</strong>
+    }
+  }
+
   // Rendering
   if(state.form && state.form.tasks) {
     // Rendering form
@@ -168,14 +189,15 @@ function PostFormContainer(props) {
                         isNotValid={state.isNotValid}
                         language={state.language}
                         handleSubmit={handleSubmit}
+                        submitting={state.submitting}
                       />
                 </div>
           </div>
           );
-    } else {
+      } else {
       // Rendering thank-you note
-      return <h1> Thank you for your submission!</h1>
-    }
+      return getThankYouPage();
+      } 
   } else {
   // We are fetching the form
     return <div>{state.loading ? <h1>Loading</h1>:''}</div>;

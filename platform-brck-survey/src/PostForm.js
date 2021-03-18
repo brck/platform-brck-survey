@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import './FormStyles.css'
 
-function PostForm({post, language, handleSubmit, isNotValid}) {
+function PostForm({post, language, handleSubmit, isNotValid, submitting}) {
   const generateInitialState = () => {
     const initialPostState = {};
     post.post_content.forEach(tasks => {
@@ -84,10 +84,12 @@ function PostForm({post, language, handleSubmit, isNotValid}) {
             onChange = handleSelectChange;
           } else if (field.type === 'datetime') {
             onChange = setFieldValue;
+          } else if(field.type === 'title' || field.type === 'description') {
+            validField = false;
           } else if (field.type === 'point' && field.input === 'location') {
             onChange = setMapValue;
             return <PostMap key='map' isNotValid={validField} field={field} onChange={onChange} language={language} />
-          }
+          } 
           return <PostField key={j} field={field} isNotValid={validField} onChange={onChange} language={language} />
         });
       });
@@ -103,7 +105,7 @@ function PostForm({post, language, handleSubmit, isNotValid}) {
     >
       {getStructure()}
       <div className="medium-12 columns">
-        <button className="button expanded">
+        <button disabled={submitting} className="button expanded">
           Submit
         </button>
       </div>
