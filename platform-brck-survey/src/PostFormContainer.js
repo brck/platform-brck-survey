@@ -2,7 +2,6 @@ import React, {useEffect, useReducer } from 'react';
 import * as api from './helpers/fetchData';
 import PostForm from './PostForm';
 import LanguageSwitch from './LanguageSwitch';
-import sample from 'lodash.sample';
 
 const initialState = {
   form: {},
@@ -160,10 +159,15 @@ function PostFormContainer(props) {
 
   const getThankYouPage = () => {
     if(redirectUrls.length > 0 && redirectForms.includes(state.form.id.toString())) {        
-      setTimeout(function() {
-        window.location.href = sample(redirectUrls);
-      },2000);
-      return <strong>Thank you for your submission, you are now being directed to Facebook! </strong>;
+      return (
+        <div className="large-12 columns">          
+          <strong>Thank you for your submission, please visit one of our Facebook-pages: </strong>
+          <br/>
+          <a href="https://www.facebook.com/groups/418760305962072" target="_blank" rel="noopener noreferrer">AMAHORO KURI TWESE GROUP</a>
+          <br/>
+          <a href="https://www.facebook.com/groups/1088656244909985" target="_blank" rel="noopener noreferrer">GIRA AMAHORO GROUP</a>
+        </div>
+        );
     } else {
       return <strong> Thank you for your submission!</strong>
     }
